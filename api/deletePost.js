@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
         try {
             await connectToDatabase();
-            const post = await Post.findById(id);
+            const post = await Post.findById(id); // Find the post by ID
 
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
@@ -31,17 +31,19 @@ export default async function handler(req, res) {
             // Delete the post
             await Post.findByIdAndDelete(id);
 
-            // Notify Ably about the deleted post
+            // Notify Ably about the deleted post (for real-time updates on other clients)
             await publishToAbly('deleteOpinion', { id });
 
             res.status(200).json({ message: 'Post deleted successfully' });
         } catch (error) {
+            console.error('Error deleting post:', error);
             res.status(500).json({
                 message: 'Error deleting post',
                 error: error.message,
             });
         }
     } else {
+        // Only handle DELETE requests, respond with 405 for other methods
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
