@@ -521,7 +521,8 @@ body.dark-mode footer {
     // Function to fetch posts from the backend
     async function fetchPosts() {
         try {
-            const response = await fetch('/posts');  // Ensure this path is correct
+         const response = await fetch('/api/posts');
+ // Ensure this path is correct
             if (!response.ok) throw new Error('Failed to load posts');
             const posts = await response.json();
             return posts;
