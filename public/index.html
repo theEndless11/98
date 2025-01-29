@@ -512,44 +512,43 @@ body.dark-mode footer {
     // Button event to post a new opinion
     document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
-// Fetch past messages when the page loads
-window.onload = async () => {
-    const posts = await fetchPosts();
-    posts.forEach(post => addPostToFeed(post));
-}
-
-// Function to fetch posts from the backend
-async function fetchPosts() {
-    try {
-        const response = await fetch('/posts');
-        if (!response.ok) throw new Error('Failed to load posts');
-        const posts = await response.json();
-        return posts;
-    } catch (error) {
-        console.error(error);
-        return [];
+    // Fetch past messages when the page loads
+    window.onload = async () => {
+        const posts = await fetchPosts();
+        posts.forEach(post => addPostToFeed(post));
     }
-}
 
-// Function to add a new post to the feed
-function addPostToFeed(post) {
-    const postFeed = document.getElementById('posts');
-    const postCard = document.createElement('div');
-    postCard.className = 'post-card';
-    postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+    // Function to fetch posts from the backend
+    async function fetchPosts() {
+        try {
+            const response = await fetch('/posts');  // Ensure this path is correct
+            if (!response.ok) throw new Error('Failed to load posts');
+            const posts = await response.json();
+            return posts;
+        } catch (error) {
+            console.error(error);
+            return [];
+        }
+    }
 
-    postCard.innerHTML = `
-        <p><strong>${post.username}</strong>: ${post.message}</p>
-        <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
-        <div class="actions">
-            <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
-            <button onclick="deletePost('${post._id}')">Delete</button>
-        </div>
-    `;
-    
-    postFeed.appendChild(postCard);
-}
+    // Function to add a new post to the feed
+    function addPostToFeed(post) {
+        const postFeed = document.getElementById('posts');
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
 
+        postCard.innerHTML = `
+            <p><strong>${post.username}</strong>: ${post.message}</p>
+            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+            <div class="actions">
+                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+                <button onclick="deletePost('${post._id}')">Delete</button>
+            </div>
+        `;
+        
+        postFeed.appendChild(postCard);
+    }
 
     // Handle posting a new opinion
     async function postOpinion() {
@@ -609,56 +608,38 @@ function addPostToFeed(post) {
     }
 
     // Delete post functionality
-   async function deletePost(postId) {
-    const currentUsername = username;
-    const sessionId = sessionStorage.getItem('sessionId');
+    async function deletePost(postId) {
+        const currentUsername = username;
+        const sessionId = sessionStorage.getItem('sessionId');
 
-    console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
+        console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
 
-    const confirmation = confirm("Are you sure you want to delete this post?");
+        const confirmation = confirm("Are you sure you want to delete this post?");
+        if (confirmation) {
+            try {
+                const response = await fetch(`/api/deletePost`, {  // Correct path for delete
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: currentUsername,
+                        sessionId: sessionId
+                    }),
+                });
 
-    if (confirmation) {
-        try {
-         const response = await fetch(`/api/deletePost`, {  // Correct path for delete
-
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: currentUsername,
-                    sessionId: sessionId
-                }),
-            });
-
-            const result = await response.json();
-
-            // Check if the response is valid JSON
-            if (!response.ok) {
-                throw new Error(result.message || 'Failed to delete post');
-            }
-
-            console.log('Post deleted:', result);
-            channel.publish('deleteOpinion', { id: postId });
-            removePostFromFeed(postId);
-        } catch (error) {
-            console.error('Error deleting post:', error.message);
-            alert("Error deleting post: " + error.message);  // Show alert for user-friendly message
-        }
-    }
-}
-
-                // Check the response
                 const result = await response.json();
-                if (response.ok) {
-                    console.log('Post deleted:', result);
-                    channel.publish('deleteOpinion', { id: postId });
-                    removePostFromFeed(postId);
-                } else {
-                    console.error('Failed to delete post:', result.message);
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Failed to delete post');
                 }
+
+                console.log('Post deleted:', result);
+                channel.publish('deleteOpinion', { id: postId });
+                removePostFromFeed(postId);
             } catch (error) {
-                console.error('Error deleting post:', error);
+                console.error('Error deleting post:', error.message);
+                alert("Error deleting post: " + error.message);  // Show alert for user-friendly message
             }
         }
     }
@@ -684,25 +665,6 @@ function addPostToFeed(post) {
                 card.querySelector('.timestamp').textContent = new Date(updatedPost.timestamp).toLocaleString(); 
             }
         });
-    }
-
-    // Function to add a post to the feed (when posts are fetched or added)
-    function addPostToFeed(post) {
-        const postFeed = document.getElementById('posts');
-        const postCard = document.createElement('div');
-        postCard.className = 'post-card';
-        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
-
-        postCard.innerHTML = `
-            <p><strong>${post.username}</strong>: ${post.message}</p>
-            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
-            <div class="actions">
-                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
-                <button onclick="deletePost('${post._id}')">Delete</button>
-            </div>
-        `;
-
-        postFeed.appendChild(postCard);  // Add the new post card to the feed
     }
 
     // Helper function to generate a unique session ID
