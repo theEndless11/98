@@ -1,5 +1,3 @@
-api\deletepost.js 
-
 import { connectToDatabase } from './utils/db';
 import mongoose from 'mongoose';
 import { publishToAbly } from './utils/ably';
