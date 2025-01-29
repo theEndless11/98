@@ -77,35 +77,55 @@
     }
     
     /* Dark Mode Styles */
-    body.dark-mode {
-        background: #121212;
-        color: #fff;
+  /* Dark Mode Styles */
+body.dark-mode {
+    background: #121212;
+    color: #fff;
+}
+
+body.dark-mode .container {
+    background: #1e1e1e;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .mode-toggle {
+    color: #fff;
+}
+
+body.dark-mode textarea {
+    background: #333;
+    border-color: #555;
+    color: #fff;
+    /* Ensure placeholder text is visible */
+    ::placeholder {
+        color: #bbb; /* Lighter placeholder color */
     }
-    
-    body.dark-mode .container {
-        background: #1e1e1e;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    }
-    
-    body.dark-mode .mode-toggle {
-        color: #fff;
-    }
-    
-    body.dark-mode textarea {
-        background: #333;
-        border-color: #555;
-        color: #333;
-    }
-    
-    body.dark-mode button {
-        background-color: #333;
-        border-color: #444;
-        color: #fff;
-    }
-    
-    body.dark-mode button:hover {
-        background-color: #555;
-    }
+}
+
+body.dark-mode button {
+    background-color: #333;
+    border-color: #444;
+    color: #fff;
+}
+
+body.dark-mode button:hover {
+    background-color: #555;
+}
+
+/* Make sure the header text color is visible in dark mode */
+body.dark-mode h1 {
+    color: #fff;
+}
+
+/* Ensure posts are visible */
+body.dark-mode .posts-feed {
+    color: #fff; /* Add color to the posts */
+}
+
+body.dark-mode footer {
+    color: #bbb; /* Lighter color for footer text */
+}
+
    
     .hidden {
         display: none;
