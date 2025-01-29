@@ -75,55 +75,6 @@
         cursor: pointer;
         transition: color 0.3s ease;
     }
-    
-    /* Dark Mode Styles */
-  /* Dark Mode Styles */
-body.dark-mode {
-    background: #121212;
-    color: #fff;
-}
-
-body.dark-mode h1,
-body.dark-mode footer {
-    color: #fff;  /* Ensuring the h1 and footer text is white in dark mode */
-}
-
-body.dark-mode textarea {
-    background: #333;
-    border-color: #555;
-    color: #fff; /* Ensures text in textarea is white */
-}
-
-/* Placeholder text in textarea should also be lighter */
-body.dark-mode textarea::placeholder {
-    color: #bbb; /* Lighter placeholder color */
-}
-
-body.dark-mode button {
-    background-color: #333;
-    border-color: #444;
-    color: #fff;
-}
-
-body.dark-mode button:hover {
-    background-color: #555;
-}
-
-body.dark-mode .posts-feed,
-body.dark-mode .mode-toggle {
-    color: #fff;  /* Ensuring any text in posts-feed and mode-toggle is white */
-}
-
-body.dark-mode footer {
-    color: #bbb;  /* Lighter color for footer text */
-}
-
-/* Add this for links, buttons, or other text elements that need to be visible */
-body.dark-mode a, 
-body.dark-mode button, 
-body.dark-mode .mode-toggle {
-    color: #fff; /* Ensure all buttons and interactive elements are visible */
-}
 
     .hidden {
         display: none;
@@ -356,130 +307,190 @@ function toggleDarkMode() {
         box-sizing: border-box;
     }
     
-    body {
-          width: 100%;
-        font-family: 'Arial', sans-serif;
-        background: #f0f4f8;
-        color: #333;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        height: 100vh;
-        padding: 5px;
-    }
-    .container {
-        width: 100%;
-        max-width: 800px;
-        background: white;
-        padding: 40px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    #username {
-        display: none;
-    }
-    
-    
-    h1 {
-        font-size: 22px;
-        margin-bottom: 10px;
-        color: #2c3e50;
-    }
-    
-    .form-container {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 40px;
-        width: 100%;
-    }
-    
-    textarea {
-        width: 100%;
-        padding: 15px;
-        font-size: 14px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        resize: none;
-        transition: all 0.3s ease;
-    }
-    
-    textarea:focus {
-        outline: none;
-        border-color: #5c6bc0;
-    }
-    
-    button {
-        padding: 12px 20px;
-        background-color: #5c6bc0;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-size: 16px;
-    }
-    
-    button:hover {
-        background-color: #3949ab;
-    }
-    
-    button:active {
-        background-color: #303f9f;
-    }
-    
-    .posts-feed {
-        width: 100%;
-        margin-top: 20px;
-    }
-    
-    .post-card {
-        background-color: #ffffff;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .post-card p {
-        font-size: 16px;
-        margin-bottom: 10px;
-    }
-    
-    .post-card .timestamp {
-        font-size: 12px;
-        color: #aaa;
-    }
-    
-    .post-card .actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 10px;
-    }
-    
-    .post-card button {
-        background-color: transparent;
-        border: none;
-        color: #5c6bc0;
-        cursor: pointer;
-    }
-    
-    .post-card button:hover {
-        color: #3949ab;
-    }
-    
-    footer {
-        margin-top: 40px;
-        font-size: 12px;
-        color: #888;
-    }
-    
+  /* General Body Styles */
+body {
+    width: 100%;
+    font-family: 'Arial', sans-serif;
+    background: #f0f4f8; /* Light mode background */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    padding: 5px;
+}
+
+body.dark-mode {
+    background: #121212; /* Dark mode background */
+    color: #fff; /* White text for dark mode */
+}
+
+/* Container styling */
+.container {
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+body.dark-mode .container {
+    background: #1e1e1e; /* Dark container background */
+}
+
+/* Headings */
+h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #2c3e50; /* Light mode heading color */
+}
+
+body.dark-mode h1 {
+    color: #fff; /* White heading text in dark mode */
+}
+
+/* Form container */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+/* Textarea styles */
+textarea {
+    width: 100%;
+    padding: 15px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    resize: none;
+    transition: all 0.3s ease;
+    color: #333; /* Default text color */
+}
+
+body.dark-mode textarea {
+    background: #333;
+    border-color: #555;
+    color: #fff; /* White text for dark mode */
+}
+
+body.dark-mode textarea::placeholder {
+    color: #bbb; /* Lighter placeholder color */
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #5c6bc0;
+}
+
+body.dark-mode textarea:focus {
+    border-color: #5c6bc0;
+}
+
+/* Button styles */
+button {
+    padding: 12px 20px;
+    background-color: #5c6bc0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 16px;
+}
+
+body.dark-mode button {
+    background-color: #333;
+    color: #fff;
+}
+
+body.dark-mode button:hover {
+    background-color: #555;
+}
+
+button:hover {
+    background-color: #3949ab;
+}
+
+button:active {
+    background-color: #303f9f;
+}
+
+/* Posts Feed */
+.posts-feed {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.post-card {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+body.dark-mode .post-card {
+    background-color: #333; /* Dark background for posts */
+    color: #fff; /* White text for posts */
+}
+
+.post-card p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.post-card .timestamp {
+    font-size: 12px;
+    color: #aaa;
+}
+
+body.dark-mode .post-card .timestamp {
+    color: #bbb; /* Lighter color for timestamp in dark mode */
+}
+
+/* Post card actions (buttons) */
+.post-card .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.post-card button {
+    background-color: transparent;
+    border: none;
+    color: #5c6bc0;
+    cursor: pointer;
+}
+
+body.dark-mode .post-card button {
+    color: #fff; /* White buttons for actions in dark mode */
+}
+
+.post-card button:hover {
+    color: #3949ab;
+}
+
+/* Footer */
+footer {
+    margin-top: 40px;
+    font-size: 12px;
+    color: #888;
+}
+
+body.dark-mode footer {
+    color: #bbb; /* Lighter color for footer text in dark mode */
+}
+
     
 </style>
 <script>
