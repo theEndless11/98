@@ -28,14 +28,17 @@ export default async function handler(req, res) {
     } else if (req.method === 'DELETE') {
         try {
             const { postId, username, sessionId } = req.body;
-            
+
             // Ensure postId is in valid ObjectId format
             if (!mongoose.Types.ObjectId.isValid(postId)) {
                 return res.status(400).json({ message: 'Invalid postId' });
             }
 
+            // Convert postId to a valid ObjectId if it's a valid string
+            const objectId = mongoose.Types.ObjectId(postId);
+
             // Find the post by postId
-            const post = await Post.findById(mongoose.Types.ObjectId(postId));
+            const post = await Post.findById(objectId);
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
@@ -57,4 +60,5 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
+
 
