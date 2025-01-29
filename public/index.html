@@ -512,32 +512,26 @@ body.dark-mode footer {
     // Button event to post a new opinion
     document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
+   
     // Fetch past messages when the page loads
     window.onload = async () => {
-        try {
-            const posts = await fetchPosts();  // Fetch previous posts
-            if (posts && posts.length > 0) {
-                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
-            } else {
-                console.log("No previous posts found.");
-            }
-        } catch (error) {
-            console.error("Error loading posts: ", error);
-        }
+        const posts = await fetchPosts();
+        posts.forEach(post => addPostToFeed(post));
     }
-
+    
     // Function to fetch posts from the backend
     async function fetchPosts() {
         try {
-            const response = await fetch('/api/posts');  // Ensure this path matches your backend
-            if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
+            const response = await fetch('/api/posts');  // Make sure to use the correct path
+            if (!response.ok) throw new Error('Failed to load posts');
             const posts = await response.json();
             return posts;
         } catch (error) {
-            console.error('Error fetching posts:', error);  // Log any errors
-            return [];  // Return an empty array if there was an error
+            console.error(error);
+            return [];
         }
     }
+
 
     // Handle posting a new opinion
     async function postOpinion() {
