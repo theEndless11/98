@@ -514,23 +514,25 @@ body.dark-mode footer {
 
    
     // Fetch past messages when the page loads
-    window.onload = async () => {
-        const posts = await fetchPosts();
-        posts.forEach(post => addPostToFeed(post));
-    }
-    
-    // Function to fetch posts from the backend
-    async function fetchPosts() {
-        try {
-            const response = await fetch('/api/posts');  // Make sure to use the correct path
-            if (!response.ok) throw new Error('Failed to load posts');
-            const posts = await response.json();
-            return posts;
-        } catch (error) {
-            console.error(error);
-            return [];
+
+        // Fetch past messages when the page loads
+        window.onload = async () => {
+            const posts = await fetchPosts();
+            posts.forEach(post => addPostToFeed(post));
         }
-    }
+        
+        // Function to fetch posts from the backend
+        async function fetchPosts() {
+            try {
+                const response = await fetch('/api/posts');  // Make sure to use correct path
+                if (!response.ok) throw new Error('Failed to load posts');
+                const posts = await response.json();
+                return posts;
+            } catch (error) {
+                console.error(error);
+                return [];
+            }
+        }
 
 
     // Handle posting a new opinion
