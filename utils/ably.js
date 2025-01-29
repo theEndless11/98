@@ -1,0 +1,23 @@
+import Ably from 'ably';
+
+const ably = new Ably.Realtime(process.env.ABLY_API_KEY);  // Fetch Ably API key from environment variables
+const channel = ably.channels.get('opinions');  // Use the same 'opinions' channel for all communication
+
+/**
+ * Publish a message to the Ably channel
+ * @param {string} event - The event name, e.g., 'newOpinion', 'editOpinion', or 'deleteOpinion'
+ * @param {Object} data - The data to send in the event
+ */
+export function publishToAbly(event, data) {
+    return new Promise((resolve, reject) => {
+        channel.publish(event, data, (err) => {
+            if (err) {
+                console.error('Error publishing message to Ably:', err);
+                reject(err);
+            } else {
+                console.log(`Published message to Ably channel with event: ${event}`);
+                resolve();
+            }
+        });
+    });
+}

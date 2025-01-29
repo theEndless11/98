@@ -1,0 +1,303 @@
+<div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Emoji Button for Dark Mode -->
+<div class="floating-nav">
+    <!-- Floating Action Button (FAB) -->
+    <button class="fab-btn" id="fabBtn" aria-label="Open menu">+</button>
+
+    <!-- Menu items that will be shown when FAB is clicked -->
+    <div class="nav-options">
+        <button class="nav-option" id="termsBtn" aria-label="Terms and Conditions">📜 Terms</button>
+        <button class="nav-option" id="contactBtn" aria-label="Contact Information">📞 Contact</button>
+        <button class="nav-option" id="communityBtn" aria-label="Community Guidelines">📚 Guidelines</button>
+    </div>
+
+    <!-- Overlay for displaying content in the middle of the page -->
+    <div class="overlay hidden" id="overlay">
+        <div class="content-container">
+            <!-- Close button -->
+            <button class="close-btn" id="closeBtn" aria-label="Close">×</button>
+
+            <!-- Content for each section -->
+            <div id="termsContent" class="content">
+                <h3>Terms & Conditions</h3>
+                <p>Welcome to our platform! By using our service, you agree to the following terms and conditions:</p>
+                <ul>
+                    <li><strong>Eligibility:</strong> You must be at least 13 years old to use this platform.</li>
+                    <li><strong>Respectful Use:</strong> You agree to use this platform for lawful purposes only. Do not post or share content that violates any local, national, or international laws.</li>
+                    <li><strong>Privacy:</strong> We respect your privacy. Your personal information will not be shared with third parties unless necessary to comply with the law.</li>
+                    <li><strong>Content Ownership:</strong> You retain ownership of any content you post, but by posting, you grant us a license to use, modify, and distribute the content within the scope of the service.</li>
+                    <li><strong>Prohibited Content:</strong> Do not post any offensive, abusive, defamatory, or illegal content. Any content that promotes hate speech, violence, or harassment is strictly prohibited.</li>
+                    <li><strong>Account Termination:</strong> We reserve the right to suspend or terminate your account for violating any of the terms outlined in this agreement.</li>
+                    <li><strong>Changes to Terms:</strong> We may update these terms periodically. It is your responsibility to review them regularly. By continuing to use the platform, you agree to the updated terms.</li>
+                </ul>
+                <p>If you have any questions regarding these terms, please contact us at the provided contact information.</p>
+            </div>
+
+            <div id="contactContent" class="content hidden">
+                <h3>Contact Info</h3>
+                <p>For support, inquiries, or any questions, please feel free to reach out to us:</p>
+                <p><strong>Email:</strong> name86473@gmail.com</p>
+                <p><strong>Phone:</strong> +1 123-456-7890</p>
+                <p><strong>Address:</strong> 1234 Platform Lane, Tech City, TX 12345</p>
+                <p>If you're having technical issues or need further assistance, don't hesitate to get in touch with our support team.</p>
+            </div>
+
+            <div id="communityContent" class="content hidden">
+                <h3>Community Guidelines</h3>
+                <p>We want to foster a positive, inclusive, and respectful community on our platform. To help maintain a safe space for everyone, please adhere to the following guidelines:</p>
+                <ul>
+                    <li><strong>Respect Others:</strong> Treat all members of the community with respect. Engage in discussions with kindness and empathy.</li>
+                    <li><strong>Constructive Feedback:</strong> Share your opinions and thoughts constructively. If you disagree with someone, express your opinion in a way that encourages healthy discussion.</li>
+                    <li><strong>No Hate Speech or Bullying:</strong> Discrimination, hate speech, bullying, and harassment will not be tolerated. We aim to create an environment where everyone feels safe.</li>
+                    <li><strong>Stay on Topic:</strong> Keep your posts relevant to the purpose of the platform. Avoid spamming or irrelevant content.</li>
+                    <li><strong>Report Violations:</strong> If you encounter any content that violates these guidelines or our terms, please report it immediately. We take reports seriously and investigate them promptly.</li>
+                    <li><strong>Privacy:</strong> Respect others' privacy. Do not share personal information about other users without their consent.</li>
+                </ul>
+                <p>By following these guidelines, you help ensure that everyone has a positive experience. We thank you for your cooperation!</p>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .mode-toggle {
+        font-size: 24px;
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    
+    /* Dark Mode Styles */
+    body.dark-mode {
+        background: #121212;
+        color: #fff;
+    }
+    
+    body.dark-mode .container {
+        background: #1e1e1e;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-mode .mode-toggle {
+        color: #fff;
+    }
+    
+    body.dark-mode textarea {
+        background: #333;
+        border-color: #555;
+        color: #fff;
+    }
+    
+    body.dark-mode button {
+        background-color: #333;
+        border-color: #444;
+        color: #fff;
+    }
+    
+    body.dark-mode button:hover {
+        background-color: #555;
+    }
+    .hidden {
+        display: none;
+    }
+    
+    .visible {
+        display: block;
+    }
+    
+    /* Floating navigation styling */
+    .floating-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        z-index: 9999;
+    }
+    
+    .fab-btn {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 20px;
+        font-size: 30px;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    
+    .fab-btn:hover {
+        background-color: #0056b3;
+    }
+    
+    /* Menu options */
+    .nav-options {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    .nav-options.visible {
+        display: flex;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Menu buttons */
+    .nav-option {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 8px;
+        width: 120px;
+        text-align: center;
+        transition: background-color 0.3s ease;
+    }
+    
+    .nav-option:hover {
+        background-color: #0056b3;
+    }
+    
+    /* Overlay for displaying content */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        display: none; /* Ensure it starts hidden */
+    }
+    
+    .overlay.visible {
+        display: flex;
+    }
+    
+    /* Content container */
+    .content-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    /* Close button */
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+    }
+    
+    .close-btn:hover {
+        color: #000;
+    }
+    
+    /* Content for each section */
+    .content {
+        display: none;
+        padding: 20px;
+        background-color: #f1f1f1;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .content.visible {
+        display: block;
+    }
+    
+</style>
+<script>
+    // Function to toggle between light and dark mode
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const modeIcon = document.querySelector('.mode-toggle');
+
+    // Switch emoji based on the current mode
+    if (document.body.classList.contains('dark-mode')) {
+        modeIcon.textContent = '🌞'; // Sun for light mode
+    } else {
+        modeIcon.textContent = '🌙'; // Moon for dark mode
+    }
+}
+
+    document.getElementById('fabBtn').addEventListener('click', function (event) {
+        event.stopPropagation();
+        const navOptions = document.querySelector('.nav-options');
+        navOptions.classList.toggle('visible');
+    });
+    
+    function showContent(contentId) {
+        const overlay = document.getElementById('overlay');
+        const allContent = document.querySelectorAll('.content');
+        
+        // Hide all content sections
+        allContent.forEach(content => {
+            content.classList.remove('visible');
+            content.classList.add('hidden');
+        });
+    
+        // Show the selected content
+        const contentToShow = document.getElementById(contentId);
+        if (contentToShow) {
+            contentToShow.classList.remove('hidden');
+            contentToShow.classList.add('visible');
+            overlay.classList.add('visible'); // Show the overlay
+        }
+    
+        // Close the menu options
+        const navOptions = document.querySelector('.nav-options');
+        navOptions.classList.remove('visible');
+    }
+    
+    // Event listeners for buttons to show content
+    document.getElementById('termsBtn').addEventListener('click', function () {
+        showContent('termsContent');
+    });
+    
+    document.getElementById('contactBtn').addEventListener('click', function () {
+        showContent('contactContent');
+    });
+    
+    document.getElementById('communityBtn').addEventListener('click', function () {
+        showContent('communityContent');
+    });
+    
+    // Close the overlay when the close button is clicked
+    document.getElementById('closeBtn').addEventListener('click', function () {
+        const overlay = document.getElementById('overlay');
+        overlay.classList.remove('visible');
+    });
+    
+    // Prevent hiding the overlay when clicking inside the content container
+    document.getElementById('overlay').addEventListener('click', function(event) {
+        const contentContainer = document.querySelector('.content-container');
+        if (!contentContainer.contains(event.target)) {
+            overlay.classList.remove('visible');
+        }
+    });
+    
+</script>

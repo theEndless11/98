@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Opinions</title>
+</head>
+<body>
+    <body>
+    <div class="container">
+        <h1>Share Your Opinion Anonymously</h1>
+
+        <div class="form-container">
+            <textarea id="postText" placeholder="What’s on your mind?" rows="4"></textarea>
+            <button id="submitBtn">Post Opinion</button>
+        </div>
+
+        <div id="posts" class="posts-feed">
+            <!-- Existing posts will be loaded here -->
+        </div>
+       
+        <footer>
+            <p>Powered by Ably & MongoDB Atlas</p>
+        </footer>
+    </div>
+    
+    <script src="https://cdn.ably.io/lib/ably.min.js"></script>
+</body>
+</html>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Arial', sans-serif;
+        background: #f0f4f8;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100vh;
+        padding: 5px;
+    }
+    .container {
+        width: 80%;
+        max-width: 800px;
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #username {
+        display: none;
+    }
+    
+    
+    h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+    
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 40px;
+        width: 100%;
+    }
+    
+    textarea {
+        width: 100%;
+        padding: 15px;
+        font-size: 14px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        resize: none;
+        transition: all 0.3s ease;
+    }
+    
+    textarea:focus {
+        outline: none;
+        border-color: #5c6bc0;
+    }
+    
+    button {
+        padding: 12px 20px;
+        background-color: #5c6bc0;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+    }
+    
+    button:hover {
+        background-color: #3949ab;
+    }
+    
+    button:active {
+        background-color: #303f9f;
+    }
+    
+    .posts-feed {
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+    .post-card {
+        background-color: #ffffff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .post-card p {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    
+    .post-card .timestamp {
+        font-size: 12px;
+        color: #aaa;
+    }
+    
+    .post-card .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 10px;
+    }
+    
+    .post-card button {
+        background-color: transparent;
+        border: none;
+        color: #5c6bc0;
+        cursor: pointer;
+    }
+    
+    .post-card button:hover {
+        color: #3949ab;
+    }
+    
+    footer {
+        margin-top: 40px;
+        font-size: 12px;
+        color: #888;
+    }
+    
+    
+</style>
+<script>
+    
+    const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Replace with your Ably API key
+    const channel = ably.channels.get('opinions');
+    
+    // Generate a unique session ID if it doesn't exist in sessionStorage
+    if (!sessionStorage.getItem('sessionId')) {
+        sessionStorage.setItem('sessionId', generateSessionId());
+    }
+    
+    // Generate a unique 4-word username for the user
+    let username = localStorage.getItem('username');
+    if (!username) {
+        username = generateUsername();
+        localStorage.setItem('username', username);  // Save it in localStorage for "remember me"
+    }
+
+    // Button event to post a new opinion
+    document.getElementById('submitBtn').addEventListener('click', postOpinion);
+    
+    // Fetch past messages when the page loads
+    window.onload = async () => {
+        const posts = await fetchPosts();
+        posts.forEach(post => addPostToFeed(post));
+    }
+    
+    // Function to fetch posts from the backend
+    async function fetchPosts() {
+        try {
+            const response = await fetch('/posts');
+            if (!response.ok) throw new Error('Failed to load posts');
+            const posts = await response.json();
+            return posts;
+        } catch (error) {
+            console.error(error);
+            return [];
+        }
+    }
+    
+    // Function to add a new post to the feed
+    function addPostToFeed(post) {
+        const postFeed = document.getElementById('posts');
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+    
+        postCard.innerHTML = `
+            <p><strong>${post.username}</strong>: ${post.message}</p>
+            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+            <div class="actions">
+                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+                <button onclick="deletePost('${post._id}')">Delete</button>
+            </div>
+        `;
+        
+        postFeed.appendChild(postCard);
+    }
+    
+    // Handle posting a new opinion
+    async function postOpinion() {
+        const postText = document.getElementById('postText').value.trim();
+        if (postText !== '') {
+            const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
+            const postData = { message: postText, username: username, sessionId };  // Include username and session ID
+            try {
+                const response = await fetch('/postOpinion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData),
+                });
+    
+                if (response.ok) {
+                    const newPost = await response.json();
+                    addPostToFeed(newPost);
+                    document.getElementById('postText').value = ''; // Clear input
+                }
+            } catch (error) {
+                console.error('Error posting opinion:', error);
+            }
+        }
+    }
+    
+    // Real-time updates from Ably
+    channel.subscribe('newOpinion', function (message) {
+        addPostToFeed(message.data);
+    });
+    
+    channel.subscribe('editOpinion', function (message) {
+        updatePostInFeed(message.data);
+    });
+    
+    channel.subscribe('deleteOpinion', function (message) {
+        removePostFromFeed(message.data.id);
+    });
+    
+    // Edit post functionality
+    function editPost(postId, postUsername) {
+        const currentUsername = username;
+        
+        if (postUsername !== currentUsername) {
+            alert("You can only edit your own posts.");
+            return;
+        }
+    
+        const postText = prompt('Edit your opinion:');
+        if (postText) {
+            const updatedPost = { id: postId, message: postText, timestamp: new Date(), username: currentUsername };
+            // Send the edited post to Ably and MongoDB
+            channel.publish('editOpinion', updatedPost);
+    
+            // Update the UI for immediate feedback
+            updatePostInFeed(updatedPost);
+        }
+    }
+    
+    // Delete post functionality
+    async function deletePost(postId) {
+        const currentUsername = username;
+        const sessionId = sessionStorage.getItem('sessionId');
+        
+        console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
+        
+        const confirmation = confirm("Are you sure you want to delete this post?");
+        
+        if (confirmation) {
+            try {
+                const response = await fetch(`/deletePost/${postId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: currentUsername,
+                        sessionId: sessionId
+                    }),
+                });
+    
+                const result = await response.json();
+                if (response.ok) {
+                    channel.publish('deleteOpinion', { id: postId });
+                    removePostFromFeed(postId);
+                } else {
+                    console.error('Failed to delete post:', result.message);
+                    console.error('Error details:', result.error); // Log error from backend
+                }
+            } catch (error) {
+                console.error('Error deleting post:', error);
+            }
+        }
+    }
+    
+
+    // Remove post from feed after deletion
+    function removePostFromFeed(postId) {
+        const postCards = document.querySelectorAll('.post-card');
+        postCards.forEach(card => {
+            const cardId = card.getAttribute('data-id');
+            if (cardId === postId) {
+                card.remove();
+            }
+        });
+    }
+    
+    // Update post in feed after edit
+    function updatePostInFeed(updatedPost) {
+        const postCards = document.querySelectorAll('.post-card');
+        postCards.forEach(card => {
+            const cardId = card.getAttribute('data-id'); // Get the ID from the data attribute
+            if (cardId === updatedPost.id) {
+                card.querySelector('p').textContent = `${updatedPost.username}: ${updatedPost.message}`; // Update message text
+                card.querySelector('.timestamp').textContent = new Date(updatedPost.timestamp).toLocaleString(); // Update timestamp
+            }
+        });
+    }
+    
+    // Helper function to generate a unique session ID
+    function generateSessionId() {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+    
+    // Helper function to generate a 4-word username
+    function generateUsername() {
+        const words = ["Sun", "Moon", "Star", "Sky", "Ocean", "Forest", "Mountain", "Cloud", "River", "Desert", "Lake", "Earth"];
+        const randomWords = [];
+        for (let i = 0; i < 4; i++) {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            randomWords.push(words[randomIndex]);
+        }
+        return randomWords.join("");
+    }
+    
+</script>
