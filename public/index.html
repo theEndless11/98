@@ -578,7 +578,7 @@ function toggleDarkMode() {
         }
         
         // Delete post functionality
-      async function deletePost(postId) {
+async function deletePost(postId) {
     const currentUsername = username;
     const sessionId = sessionStorage.getItem('sessionId');
 
@@ -588,6 +588,7 @@ function toggleDarkMode() {
 
     if (confirmation) {
         try {
+            // Make sure the URL is correct and matches the backend route
             const response = await fetch(`/api/posts/${postId}`, {
                 method: 'DELETE',
                 headers: {
@@ -599,6 +600,7 @@ function toggleDarkMode() {
                 }),
             });
 
+            // Check the response
             const result = await response.json();
             if (response.ok) {
                 console.log('Post deleted:', result);
@@ -613,7 +615,6 @@ function toggleDarkMode() {
     }
 }
 
-        
 
         // Remove post from feed after deletion
         function removePostFromFeed(postId) {
