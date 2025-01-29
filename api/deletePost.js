@@ -29,16 +29,23 @@ export default async function handler(req, res) {
         try {
             const { postId, username, sessionId } = req.body;
             
-            // Delete post if it exists and belongs to the user making the request
-            const post = await Post.findById(postId);
+            // Ensure postId is in valid ObjectId format
+            if (!mongoose.Types.ObjectId.isValid(postId)) {
+                return res.status(400).json({ message: 'Invalid postId' });
+            }
+
+            // Find the post by postId
+            const post = await Post.findById(mongoose.Types.ObjectId(postId));
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
             
+            // Check if the post belongs to the user making the request
             if (post.username !== username) {
                 return res.status(403).json({ message: 'You can only delete your own posts' });
             }
 
+            // Delete the post
             await post.deleteOne();  // Delete the post from the database
             res.status(200).json({ message: 'Post deleted successfully' });
         } catch (error) {
@@ -50,3 +57,4 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
+
