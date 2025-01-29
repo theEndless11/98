@@ -511,23 +511,31 @@ body.dark-mode footer {
 
     // Button event to post a new opinion
     document.getElementById('submitBtn').addEventListener('click', postOpinion);
-    
+
     // Fetch past messages when the page loads
     window.onload = async () => {
-        const posts = await fetchPosts();
-        posts.forEach(post => addPostToFeed(post));
+        try {
+            const posts = await fetchPosts();  // Fetch previous posts
+            if (posts && posts.length > 0) {
+                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+            } else {
+                console.log("No previous posts found.");
+            }
+        } catch (error) {
+            console.error("Error loading posts: ", error);
+        }
     }
-    
+
     // Function to fetch posts from the backend
     async function fetchPosts() {
         try {
-            const response = await fetch('/api/posts');  // Ensure this path matches your backend API
-            if (!response.ok) throw new Error('Failed to load posts');
+            const response = await fetch('/api/posts');  // Ensure this path matches your backend
+            if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
             const posts = await response.json();
             return posts;
         } catch (error) {
-            console.error(error);
-            return [];
+            console.error('Error fetching posts:', error);  // Log any errors
+            return [];  // Return an empty array if there was an error
         }
     }
 
@@ -546,7 +554,7 @@ body.dark-mode footer {
 
                 if (response.ok) {
                     const newPost = await response.json();
-                    addPostToFeed(newPost);
+                    addPostToFeed(newPost);  // Add the new post to the feed immediately
                     document.getElementById('postText').value = ''; // Clear input
                 }
             } catch (error) {
@@ -554,18 +562,18 @@ body.dark-mode footer {
             }
         }
     }
-    
+
     // Real-time updates from Ably
     channel.subscribe('newOpinion', function (message) {
-        addPostToFeed(message.data);
+        addPostToFeed(message.data);  // Add new opinion in real-time
     });
 
     channel.subscribe('editOpinion', function (message) {
-        updatePostInFeed(message.data);
+        updatePostInFeed(message.data);  // Handle post edit in real-time
     });
 
     channel.subscribe('deleteOpinion', function (message) {
-        removePostFromFeed(message.data.id);
+        removePostFromFeed(message.data.id);  // Remove deleted post in real-time
     });
 
     // Edit post functionality
@@ -645,6 +653,25 @@ body.dark-mode footer {
         });
     }
 
+    // Function to add a post to the feed (when posts are fetched or added)
+    function addPostToFeed(post) {
+        const postFeed = document.getElementById('posts');
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+
+        postCard.innerHTML = `
+            <p><strong>${post.username}</strong>: ${post.message}</p>
+            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+            <div class="actions">
+                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+                <button onclick="deletePost('${post._id}')">Delete</button>
+            </div>
+        `;
+
+        postFeed.appendChild(postCard);  // Add the new post card to the feed
+    }
+
     // Helper function to generate a unique session ID
     function generateSessionId() {
         return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -661,5 +688,4 @@ body.dark-mode footer {
         return randomWords.join("");
     }
 </script>
-
 </body>
