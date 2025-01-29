@@ -12,7 +12,7 @@ const Post = mongoose.model('Post', postSchema);
 
 export default async function handler(req, res) {
     if (req.method === 'DELETE') {
-        const { id } = req.query; // Get the post ID from the URL
+        const { id } = req.query;  // Use req.params for URL path params if needed
         const { username, sessionId } = req.body;
 
         try {
