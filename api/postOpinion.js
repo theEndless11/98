@@ -1,6 +1,6 @@
-import { connectToDatabase } from '../../utils/db';
+import { connectToDatabase } from '../utils/db';  // Corrected path
 import mongoose from 'mongoose';
-import { publishToAbly } from '../../utils/ably';
+import { publishToAbly } from '../utils/ably';  // Corrected path
 
 const postSchema = new mongoose.Schema({
     message: String,
