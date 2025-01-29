@@ -1,49 +1,52 @@
-import { connectToDatabase } from './utils/db';
 import mongoose from 'mongoose';
-import { publishToAbly } from './utils/ably';
+import { connectToDatabase } from '../utils/db'; // Your connection utility
 
+// Define the schema for the post
 const postSchema = new mongoose.Schema({
     message: String,
     timestamp: Date,
     username: String,
     sessionId: String,
 });
+
+// Create the model for posts
 const Post = mongoose.model('Post', postSchema);
 
+// Serverless API handler for handling different request types
 export default async function handler(req, res) {
-    if (req.method === 'DELETE') {
-        const { id } = req.query; // Get the post ID from the URL
-        const { username, sessionId } = req.body;
+    await connectToDatabase(); // Ensure you're connected to the database
 
+    if (req.method === 'GET') {
         try {
-            await connectToDatabase();
-            const post = await Post.findById(id); // Find the post by ID
-
+            // Fetch posts from the database, sorted by the timestamp in descending order
+            const posts = await Post.find().sort({ timestamp: -1 });
+            res.status(200).json(posts); // Send posts as a JSON response
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Error retrieving posts', error });
+        }
+    } else if (req.method === 'DELETE') {
+        try {
+            const { postId, username, sessionId } = req.body;
+            
+            // Delete post if it exists and belongs to the user making the request
+            const post = await Post.findById(postId);
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
-
-            // Ensure the user is allowed to delete this post (check username and sessionId)
-            if (post.username !== username || post.sessionId !== sessionId) {
+            
+            if (post.username !== username) {
                 return res.status(403).json({ message: 'You can only delete your own posts' });
             }
 
-            // Delete the post
-            await Post.findByIdAndDelete(id);
-
-            // Notify Ably about the deleted post (for real-time updates on other clients)
-            await publishToAbly('deleteOpinion', { id });
-
+            await post.deleteOne();  // Delete the post from the database
             res.status(200).json({ message: 'Post deleted successfully' });
         } catch (error) {
-            console.error('Error deleting post:', error);
-            res.status(500).json({
-                message: 'Error deleting post',
-                error: error.message,
-            });
+            console.error(error);
+            res.status(500).json({ message: 'Error deleting post', error });
         }
     } else {
-        // Only handle DELETE requests, respond with 405 for other methods
+        // If the request method is not supported
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
