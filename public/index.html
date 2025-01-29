@@ -83,23 +83,20 @@ body.dark-mode {
     color: #fff;
 }
 
-body.dark-mode .container {
-    background: #1e1e1e;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-mode .mode-toggle {
-    color: #fff;
+body.dark-mode h1,
+body.dark-mode footer {
+    color: #fff;  /* Ensuring the h1 and footer text is white in dark mode */
 }
 
 body.dark-mode textarea {
     background: #333;
     border-color: #555;
-    color: #fff;
-    /* Ensure placeholder text is visible */
-    ::placeholder {
-        color: #bbb; /* Lighter placeholder color */
-    }
+    color: #fff; /* Ensures text in textarea is white */
+}
+
+/* Placeholder text in textarea should also be lighter */
+body.dark-mode textarea::placeholder {
+    color: #bbb; /* Lighter placeholder color */
 }
 
 body.dark-mode button {
@@ -112,21 +109,22 @@ body.dark-mode button:hover {
     background-color: #555;
 }
 
-/* Make sure the header text color is visible in dark mode */
-body.dark-mode h1 {
-    color: #fff;
-}
-
-/* Ensure posts are visible */
-body.dark-mode .posts-feed {
-    color: #fff; /* Add color to the posts */
+body.dark-mode .posts-feed,
+body.dark-mode .mode-toggle {
+    color: #fff;  /* Ensuring any text in posts-feed and mode-toggle is white */
 }
 
 body.dark-mode footer {
-    color: #bbb; /* Lighter color for footer text */
+    color: #bbb;  /* Lighter color for footer text */
 }
 
-   
+/* Add this for links, buttons, or other text elements that need to be visible */
+body.dark-mode a, 
+body.dark-mode button, 
+body.dark-mode .mode-toggle {
+    color: #fff; /* Ensure all buttons and interactive elements are visible */
+}
+
     .hidden {
         display: none;
     }
