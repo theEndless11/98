@@ -30,6 +30,7 @@ async function clearHistory() {
 
             if (response.ok) {
                 alert(result.message);
+                await refreshPosts();  // Refresh the posts to show the updated state
             } else {
                 alert("Error: " + result.message);
             }
@@ -38,6 +39,14 @@ async function clearHistory() {
             alert('An error occurred while clearing history.');
         }
     }
+}
+
+// Add a function to refresh the posts list
+async function refreshPosts() {
+    const posts = await fetchPosts();  // Fetch the posts again
+    const postFeed = document.getElementById('posts');
+    postFeed.innerHTML = '';  // Clear the current feed
+    posts.forEach(post => addPostToFeed(post));  // Add the fresh posts
 }
 
 </script>
