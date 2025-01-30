@@ -277,7 +277,7 @@ function toggleDarkMode() {
 
         if (confirmation) {
             try {
-                const response = await fetch(`/api/posts/${postId}`, {
+                const response = await fetch(`/api/deletePost`, {  // Correct path for delete
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
