@@ -12,45 +12,77 @@ const postSchema = new mongoose.Schema({
 // Create the model for posts
 const Post = mongoose.model('Post', postSchema);
 
-// Serverless API handler for handling different request types
+const sessionExpirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
+
+async function deleteExpiredPosts() {
+    try {
+        const currentTime = Date.now();
+
+        // Find all posts with expired sessions (older than the expiration time)
+        const expiredPosts = await Post.find({
+            timestamp: { $lte: new Date(currentTime - sessionExpirationTime) }
+        });
+
+        if (expiredPosts.length > 0) {
+            // Delete expired posts
+            const result = await Post.deleteMany({
+                _id: { $in: expiredPosts.map(post => post._id) }
+            });
+
+            console.log(`${result.deletedCount} expired posts deleted.`);
+        } else {
+            console.log('No expired posts found.');
+        }
+    } catch (error) {
+        console.error('Error clearing expired posts:', error);
+    }
+}
+
 export default async function handler(req, res) {
     await connectToDatabase(); // Ensure you're connected to the database
 
-    if (req.method === 'GET') {
-        try {
-            // Define threshold for posts within the last 1 hour
-            const thresholdTime = 60 * 60 * 1000; // 1 hour in milliseconds
-            const currentTime = Date.now(); // Get current time in milliseconds
+    if (req.method === 'DELETE') {
+        const { postId, username, sessionId, clearHistory } = req.body;
 
-            // Fetch posts from the database, sorted by timestamp, and filter by the last hour
-            const posts = await Post.find({
-                timestamp: { $gte: new Date(currentTime - thresholdTime) }
-            }).sort({ timestamp: -1 });
-
-            res.status(200).json(posts); // Send posts as a JSON response
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Error retrieving posts', error });
-        }
-    } else if (req.method === 'DELETE') {
         try {
-            const { postId, username, sessionId } = req.body;
-            
-            // Delete post if it exists and belongs to the user making the request
-            const post = await Post.findById(postId);
+            // If clearHistory flag is set, clear expired posts
+            if (clearHistory) {
+                await deleteExpiredPosts();  // Clear expired posts
+                return res.status(200).json({ message: 'Expired posts cleared.' });
+            }
+
+            // Handle individual post deletion
+            if (!postId || !username || !sessionId) {
+                return res.status(400).json({ message: 'Missing required fields: postId, username, sessionId' });
+            }
+
+            // Ensure postId is in valid ObjectId format
+            if (!mongoose.Types.ObjectId.isValid(postId)) {
+                return res.status(400).json({ message: 'Invalid postId' });
+            }
+
+            // Convert postId to a valid ObjectId using the 'new' keyword
+            const objectId = new mongoose.Types.ObjectId(postId);
+
+            // Find the post by postId
+            const post = await Post.findById(objectId);
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
-            
+
+            // Check if the post belongs to the user making the request
             if (post.username !== username) {
                 return res.status(403).json({ message: 'You can only delete your own posts' });
             }
 
+            // Delete the post
             await post.deleteOne();  // Delete the post from the database
+            console.log(`Post with ID ${postId} deleted by ${username}`); // Add log for successful deletion
+
             res.status(200).json({ message: 'Post deleted successfully' });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Error deleting post', error });
+            console.error('Error in deletePost API:', error);
+            res.status(500).json({ message: 'Error deleting post', error: error.message });
         }
     } else {
         // If the request method is not supported
