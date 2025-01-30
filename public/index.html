@@ -444,8 +444,12 @@ async function deletePost(postId) {
     if (confirmation) {
         try {
             console.log(`Attempting to delete post with ID: ${postId}`);
+            
+            // Optimistically remove the post from the UI first
+            removePostFromFeed(postId);  // Remove the post right away
+            showNotification('Post deletion in progress...', false);  // Show a message that deletion is in progress
 
-            // Make the DELETE request to the server first
+            // Make the DELETE request to the server
             const response = await fetch(`/api/deletePost`, {
                 method: 'DELETE',
                 headers: {
@@ -468,22 +472,19 @@ async function deletePost(postId) {
                 throw new Error(result.message || 'Failed to delete post');
             }
 
-            // Now remove the post from the feed
-            removePostFromFeed(postId);
+            // Publish the deletion to Ably for real-time updates
+            channel.publish('deleteOpinion', { id: postId });
 
             // Show success notification
             showNotification('Post deleted successfully!', false);
-
-            // Publish the deletion to Ably for real-time updates
-            channel.publish('deleteOpinion', { id: postId });
         } catch (error) {
             console.error('Error deleting post:', error.message);
-            // Show error notification if something goes wrong
+            // If deletion failed, show error notification and add back the post
             showNotification('Error deleting post: ' + error.message, true);
+            // If there's an error, you can re-add the post back to the UI or perform other error handling
         }
     }
 }
-
     // Function to remove a post from the feed after deletion
     function removePostFromFeed(postId) {
         const postCards = document.querySelectorAll('.post-card');
