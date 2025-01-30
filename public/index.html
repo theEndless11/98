@@ -332,17 +332,15 @@ async function postOpinion() {
 
             if (response.ok) {
                 const newPost = await response.json();
-                
-                // Immediately add the new post to the feed at the top
-                addPostToFeed(newPost, true);  // 'true' ensures it's added at the top
-                
+                addPostToFeed(newPost, true);  // Add the new post immediately to the feed
+
                 document.getElementById('postText').value = ''; // Clear input
                 
                 // Show success notification
                 showNotification('Post submitted successfully!', false);
 
                 // Publish the new post to Ably to notify all users
-                channel.publish('newOpinion', newPost);
+                channel.publish('newOpinion', newPost);  // Real-time update
             }
         } catch (error) {
             console.error('Error posting opinion:', error);
@@ -355,6 +353,7 @@ async function postOpinion() {
         }
     }
 }
+
 
 
 // Function to show notification messages (for success or error)
@@ -422,6 +421,10 @@ async function postOpinion() {
         }
     }
 }
+     // Real-time updates from Ably
+channel.subscribe('newOpinion', function (message) {
+    addPostToFeed(message.data, false);  // Add new opinion in real-time
+});
 
 // Function to add a post to the feed (when posts are fetched or added)
 function addPostToFeed(post, isNewPost = false) {
@@ -439,19 +442,15 @@ function addPostToFeed(post, isNewPost = false) {
         </div>
     `;
 
+    // Prepend new post to the feed so it appears at the top
     if (isNewPost) {
-        // Prepend new post to the feed so it appears at the top
-        postFeed.prepend(postCard);  
+        postFeed.prepend(postCard);
     } else {
-        postFeed.appendChild(postCard);  // Otherwise, append to the bottom
+        postFeed.appendChild(postCard);  // Append normally for real-time updates
     }
 }
 
-    // Real-time updates from Ably
-    channel.subscribe('newOpinion', function (message) {
-        addPostToFeed(message.data);  // Add new opinion in real-time
-    });
-
+     
     channel.subscribe('editOpinion', function (message) {
         updatePostInFeed(message.data);  // Handle post edit in real-time
     });
