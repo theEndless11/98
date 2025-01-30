@@ -13,7 +13,6 @@ const postSchema = new mongoose.Schema({
 // Create the model for posts
 const Post = mongoose.model('Post', postSchema);
 
-const sessionExpirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
 async function deleteExpiredPosts() {
     try {
         const currentTime = Date.now();
