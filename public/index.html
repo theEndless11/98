@@ -7,56 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<button id="clearHistoryBtn">Clear History</button>
-
-<script>
-document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
-
-async function clearHistory() {
-    const confirmation = confirm("Are you sure you want to clear your history? This will permanently delete posts from expired sessions.");
-
-    if (confirmation) {
-        try {
-            console.log("Sending request to clear history...");
-
-            const response = await fetch('/api/deletePost', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    clearHistory: true,
-                }),
-            });
-
-            const result = await response.json();
-            console.log('Server Response:', result);  // Log the response from the server
-
-            if (response.ok) {
-                alert(result.message);
-
-                // After clearing the history, refresh the posts from the server
-                await refreshPosts();  // This will fetch and display the updated posts
-            } else {
-                alert("Error: " + result.message);
-            }
-        } catch (error) {
-            console.error('Error clearing history:', error);
-            alert('An error occurred while clearing history.');
-        }
-    }
-}
-
-// Refresh the posts after clearing history
-async function refreshPosts() {
-    const posts = await fetchPosts();  // Fetch posts from the backend
-    const postFeed = document.getElementById('posts');
-    postFeed.innerHTML = '';  // Clear the current posts feed
-
-    // Render the updated posts
-    posts.forEach(post => addPostToFeed(post));
-}
-</script>
         <div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Emoji Button for Dark Mode -->
 <div class="floating-nav">
     <!-- Floating Action Button (FAB) -->
