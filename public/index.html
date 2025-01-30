@@ -161,12 +161,12 @@ function toggleDarkMode() {
 </html>
 
 <script>
-    const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Replace with your Ably API key
+    const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Your Ably API key
     const channel = ably.channels.get('opinions');
 
-    // Generate a unique session ID if it doesn't exist in localStorage
-    if (!localStorage.getItem('sessionId')) {
-        localStorage.setItem('sessionId', generateSessionId());
+    // Generate a unique session ID if it doesn't exist in sessionStorage
+    if (!sessionStorage.getItem('sessionId')) {
+        sessionStorage.setItem('sessionId', generateSessionId());
     }
 
     // Generate a unique 4-word username for the user
@@ -181,56 +181,39 @@ function toggleDarkMode() {
 
     // Fetch past messages when the page loads
     window.onload = async () => {
-        const posts = await fetchPosts();
-        posts.forEach(post => addPostToFeed(post));
+        try {
+            const posts = await fetchPosts();  // Fetch previous posts
+            if (posts && posts.length > 0) {
+                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+            } else {
+                console.log("No previous posts found.");
+            }
+        } catch (error) {
+            console.error("Error loading posts: ", error);
+        }
     }
 
     // Function to fetch posts from the backend
     async function fetchPosts() {
         try {
-            const response = await fetch('/api/posts');
-            if (!response.ok) throw new Error('Failed to load posts');
+            const response = await fetch('/api/posts');  // Ensure this path matches your backend
+            if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
             const posts = await response.json();
-
-            // Delete expired posts (let's assume expired posts are older than 30 days)
-            const currentTime = new Date().getTime();
-            const thresholdTime = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-            const validPosts = posts.filter(post => (currentTime - new Date(post.timestamp).getTime()) < thresholdTime);
-
-            return validPosts;
+            return posts;
         } catch (error) {
-            console.error(error);
-            return [];
+            console.error('Error fetching posts:', error);  // Log any errors
+            return [];  // Return an empty array if there was an error
         }
-    }
-
-    // Function to add a new post to the feed
-    function addPostToFeed(post) {
-        const postFeed = document.getElementById('posts');
-        const postCard = document.createElement('div');
-        postCard.className = 'post-card';
-        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
-
-        postCard.innerHTML = `
-            <p><strong>${post.username}</strong>: ${post.message}</p>
-            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
-            <div class="actions">
-                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
-                <button onclick="deletePost('${post._id}')">Delete</button>
-            </div>
-        `;
-        
-        postFeed.appendChild(postCard);
     }
 
     // Handle posting a new opinion
     async function postOpinion() {
         const postText = document.getElementById('postText').value.trim();
         if (postText !== '') {
-            const sessionId = localStorage.getItem('sessionId');  // Get the session ID from localStorage
+            const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
             const postData = { message: postText, username: username, sessionId };  // Include username and session ID
             try {
-                const response = await fetch('/api/postOpinion', {
+                const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(postData),
@@ -240,6 +223,9 @@ function toggleDarkMode() {
                     const newPost = await response.json();
                     addPostToFeed(newPost);  // Add the new post to the feed immediately
                     document.getElementById('postText').value = ''; // Clear input
+                    
+                    // Publish the new post to Ably to notify all users
+                    channel.publish('newOpinion', newPost);
                 }
             } catch (error) {
                 console.error('Error posting opinion:', error);
@@ -280,40 +266,40 @@ function toggleDarkMode() {
         }
     }
 
-    // Improved deletePost function with better response handling
+    // Delete post functionality
     async function deletePost(postId) {
         const currentUsername = username;
-        const sessionId = localStorage.getItem('sessionId');  // Now using localStorage
+        const sessionId = sessionStorage.getItem('sessionId');
 
         console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
 
         const confirmation = confirm("Are you sure you want to delete this post?");
+
         if (confirmation) {
             try {
-                const response = await fetch('/api/deletePost', {
+                const response = await fetch(`/api/posts/${postId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        postId: postId,  // Include postId in the request body
                         username: currentUsername,
                         sessionId: sessionId
                     }),
                 });
 
                 const result = await response.json();
-                console.log('API Response:', result);
 
+                // Check if the response is valid JSON
                 if (!response.ok) {
                     throw new Error(result.message || 'Failed to delete post');
                 }
 
                 console.log('Post deleted:', result);
                 channel.publish('deleteOpinion', { id: postId });
-                removePostFromFeed(postId);  // Remove post from the feed on successful delete
+                removePostFromFeed(postId);
             } catch (error) {
-                console.error('Error deleting post:', error);
+                console.error('Error deleting post:', error.message);
                 alert("Error deleting post: " + error.message);  // Show alert for user-friendly message
             }
         }
@@ -342,6 +328,25 @@ function toggleDarkMode() {
         });
     }
 
+    // Function to add a post to the feed (when posts are fetched or added)
+    function addPostToFeed(post) {
+        const postFeed = document.getElementById('posts');
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+
+        postCard.innerHTML = `
+            <p><strong>${post.username}</strong>: ${post.message}</p>
+            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+            <div class="actions">
+                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+                <button onclick="deletePost('${post._id}')">Delete</button>
+            </div>
+        `;
+
+        postFeed.appendChild(postCard);  // Add the new post card to the feed
+    }
+
     // Helper function to generate a unique session ID
     function generateSessionId() {
         return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -358,4 +363,5 @@ function toggleDarkMode() {
         return randomWords.join("");
     }
 </script>
+
 
