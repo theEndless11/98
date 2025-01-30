@@ -27,7 +27,12 @@ export default async function handler(req, res) {
         }
     } else if (req.method === 'DELETE') {
         try {
+            // Ensure postId, username, and sessionId are passed in the request body
             const { postId, username, sessionId } = req.body;
+
+            if (!postId || !username || !sessionId) {
+                return res.status(400).json({ message: 'Missing required fields: postId, username, sessionId' });
+            }
 
             // Ensure postId is in valid ObjectId format
             if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -50,6 +55,8 @@ export default async function handler(req, res) {
 
             // Delete the post
             await post.deleteOne();  // Delete the post from the database
+            console.log(`Post with ID ${postId} deleted by ${username}`); // Add log for successful deletion
+
             res.status(200).json({ message: 'Post deleted successfully' });
         } catch (error) {
             console.error(error);
