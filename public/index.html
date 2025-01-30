@@ -161,6 +161,7 @@ function toggleDarkMode() {
 </html>
 
 <script>
+ <script>
     const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Your Ably API key
     const channel = ably.channels.get('opinions');
 
@@ -277,7 +278,8 @@ function toggleDarkMode() {
 
         if (confirmation) {
             try {
-                const response = await fetch(`/api/deletePost`, {  // Correct path for delete
+              const response = await fetch(`/api/deletePost`, {  // Correct path for delete
+
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -363,5 +365,7 @@ function toggleDarkMode() {
         return randomWords.join("");
     }
 </script>
+
+
 
 
