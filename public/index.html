@@ -267,44 +267,43 @@ function toggleDarkMode() {
     }
 
     // Delete post functionality
-    async function deletePost(postId) {
-        const currentUsername = username;
-        const sessionId = sessionStorage.getItem('sessionId');
+  async function deletePost(postId) {
+    const currentUsername = username;
+    const sessionId = sessionStorage.getItem('sessionId');
 
-        console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
+    console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
 
-        const confirmation = confirm("Are you sure you want to delete this post?");
+    const confirmation = confirm("Are you sure you want to delete this post?");
 
-        if (confirmation) {
-            try {
-              const response = await fetch(`/api/deletePost`, {  // Correct path for delete
+    if (confirmation) {
+        try {
+            const response = await fetch(`/api/deletePost`, {  // Correct path for delete
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    postId: postId,  // Include postId in the body
+                    username: currentUsername,
+                    sessionId: sessionId
+                }),
+            });
 
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: currentUsername,
-                        sessionId: sessionId
-                    }),
-                });
+            const result = await response.json();
 
-                const result = await response.json();
-
-                // Check if the response is valid JSON
-                if (!response.ok) {
-                    throw new Error(result.message || 'Failed to delete post');
-                }
-
-                console.log('Post deleted:', result);
-                channel.publish('deleteOpinion', { id: postId });
-                removePostFromFeed(postId);
-            } catch (error) {
-                console.error('Error deleting post:', error.message);
-                alert("Error deleting post: " + error.message);  // Show alert for user-friendly message
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to delete post');
             }
+
+            console.log('Post deleted:', result);
+            channel.publish('deleteOpinion', { id: postId });
+            removePostFromFeed(postId);
+        } catch (error) {
+            console.error('Error deleting post:', error.message);
+            alert("Error deleting post: " + error.message);  // Show alert for user-friendly message
         }
     }
+}
 
     // Remove post from feed after deletion
     function removePostFromFeed(postId) {
