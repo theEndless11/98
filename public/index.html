@@ -30,7 +30,9 @@ async function clearHistory() {
 
             if (response.ok) {
                 alert(result.message);
-                await refreshPosts();  // Refresh the posts to show the updated state
+
+                // After clearing the history, refresh the posts from the server
+                await refreshPosts();  // This will fetch and display the updated posts
             } else {
                 alert("Error: " + result.message);
             }
@@ -41,12 +43,14 @@ async function clearHistory() {
     }
 }
 
-// Add a function to refresh the posts list
+// Refresh the posts after clearing history
 async function refreshPosts() {
-    const posts = await fetchPosts();  // Fetch the posts again
+    const posts = await fetchPosts();  // Fetch posts from the backend
     const postFeed = document.getElementById('posts');
-    postFeed.innerHTML = '';  // Clear the current feed
-    posts.forEach(post => addPostToFeed(post));  // Add the fresh posts
+    postFeed.innerHTML = '';  // Clear the current posts feed
+
+    // Render the updated posts
+    posts.forEach(post => addPostToFeed(post));
 }
 
 </script>
