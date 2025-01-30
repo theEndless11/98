@@ -527,7 +527,7 @@ body.dark-mode footer {
 
             // Delete expired posts (let's assume expired posts are older than 30 days)
             const currentTime = new Date().getTime();
-         const thresholdTime = 60 * 60 * 1000; // 1 hour in milliseconds
+            const thresholdTime = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
             const validPosts = posts.filter(post => (currentTime - new Date(post.timestamp).getTime()) < thresholdTime);
 
             return validPosts;
@@ -691,3 +691,4 @@ body.dark-mode footer {
         return randomWords.join("");
     }
 </script>
+
