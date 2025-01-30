@@ -608,8 +608,7 @@ body.dark-mode footer {
         }
     }
 
-    // Delete post functionality
-// Delete post functionality
+// Improved deletePost function with better response handling
 async function deletePost(postId) {
     const currentUsername = username;
     const sessionId = sessionStorage.getItem('sessionId');
@@ -619,7 +618,7 @@ async function deletePost(postId) {
     const confirmation = confirm("Are you sure you want to delete this post?");
     if (confirmation) {
         try {
-            const response = await fetch(`/api/deletePost`, {  // Correct path for delete
+            const response = await fetch('/api/deletePost', {  // Correct path for delete
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -631,7 +630,7 @@ async function deletePost(postId) {
                 }),
             });
 
-            const result = await response.json();
+            const result = await response.json();  // Ensure the server returns a JSON response
 
             if (!response.ok) {
                 throw new Error(result.message || 'Failed to delete post');
@@ -639,13 +638,14 @@ async function deletePost(postId) {
 
             console.log('Post deleted:', result);
             channel.publish('deleteOpinion', { id: postId });
-            removePostFromFeed(postId);
+            removePostFromFeed(postId);  // Remove post from the feed on successful delete
         } catch (error) {
             console.error('Error deleting post:', error.message);
             alert("Error deleting post: " + error.message);  // Show alert for user-friendly message
         }
     }
 }
+
 
 
     // Remove post from feed after deletion
