@@ -251,6 +251,67 @@ function toggleDarkMode() {
 
 </style>
 <script>
+  
+</script>
+        <div id="posts" class="posts-feed">
+            <!-- Existing posts will be loaded here -->
+        </div>
+       
+        <footer>
+            <p>Powered by Ably & MongoDB Atlas</p>
+        </footer>
+    </div>
+    
+    <script src="https://cdn.ably.io/lib/ably.min.js"></script>
+</body>
+</html>
+
+ <script>
+    const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Your Ably API key
+    const channel = ably.channels.get('opinions');
+
+    // Generate a unique session ID if it doesn't exist in sessionStorage
+    if (!sessionStorage.getItem('sessionId')) {
+        sessionStorage.setItem('sessionId', generateSessionId());
+    }
+
+    // Generate a unique 4-word username for the user
+    let username = localStorage.getItem('username');
+    if (!username) {
+        username = generateUsername();
+        localStorage.setItem('username', username);  // Save it in localStorage for "remember me"
+    }
+
+    // Button event to post a new opinion
+    document.getElementById('submitBtn').addEventListener('click', postOpinion);
+
+    // Fetch past messages when the page loads
+    window.onload = async () => {
+        try {
+            const posts = await fetchPosts();  // Fetch previous posts
+            if (posts && posts.length > 0) {
+                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+            } else {
+                console.log("No previous posts found.");
+            }
+        } catch (error) {
+            console.error("Error loading posts: ", error);
+        }
+    }
+
+    // Function to fetch posts from the backend
+    async function fetchPosts() {
+        try {
+            const response = await fetch('/api/posts');  // Ensure this path matches your backend
+            if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
+            const posts = await response.json();
+            return posts;
+        } catch (error) {
+            console.error('Error fetching posts:', error);  // Log any errors
+            return [];  // Return an empty array if there was an error
+        }
+    }
+
     // Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
@@ -317,94 +378,29 @@ function showNotification(message, isError = false) {
         notificationElement.classList.remove('show-notification');
     }, 3000);
 }
+  // Function to add a post to the feed (when posts are fetched or added)
+    function addPostToFeed(post, isNewPost = false) {
+        const postFeed = document.getElementById('posts');
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
 
-</script>
-        <div id="posts" class="posts-feed">
-            <!-- Existing posts will be loaded here -->
-        </div>
-       
-        <footer>
-            <p>Powered by Ably & MongoDB Atlas</p>
-        </footer>
-    </div>
-    
-    <script src="https://cdn.ably.io/lib/ably.min.js"></script>
-</body>
-</html>
+        postCard.innerHTML = `
+            <p><strong>${post.username}</strong>: ${post.message}</p>
+            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+            <div class="actions">
+                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+                <button onclick="deletePost('${post._id}')">Delete</button>
+            </div>
+        `;
 
- <script>
-    const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Your Ably API key
-    const channel = ably.channels.get('opinions');
-
-    // Generate a unique session ID if it doesn't exist in sessionStorage
-    if (!sessionStorage.getItem('sessionId')) {
-        sessionStorage.setItem('sessionId', generateSessionId());
-    }
-
-    // Generate a unique 4-word username for the user
-    let username = localStorage.getItem('username');
-    if (!username) {
-        username = generateUsername();
-        localStorage.setItem('username', username);  // Save it in localStorage for "remember me"
-    }
-
-    // Button event to post a new opinion
-    document.getElementById('submitBtn').addEventListener('click', postOpinion);
-
-    // Fetch past messages when the page loads
-    window.onload = async () => {
-        try {
-            const posts = await fetchPosts();  // Fetch previous posts
-            if (posts && posts.length > 0) {
-                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
-            } else {
-                console.log("No previous posts found.");
-            }
-        } catch (error) {
-            console.error("Error loading posts: ", error);
+        if (isNewPost) {
+            // Prepend new post to the feed so it appears at the top
+            postFeed.prepend(postCard);  
+        } else {
+            postFeed.appendChild(postCard);  // Otherwise, append to the bottom
         }
     }
-
-    // Function to fetch posts from the backend
-    async function fetchPosts() {
-        try {
-            const response = await fetch('/api/posts');  // Ensure this path matches your backend
-            if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
-            const posts = await response.json();
-            return posts;
-        } catch (error) {
-            console.error('Error fetching posts:', error);  // Log any errors
-            return [];  // Return an empty array if there was an error
-        }
-    }
-
-    // Handle posting a new opinion
-    async function postOpinion() {
-        const postText = document.getElementById('postText').value.trim();
-        if (postText !== '') {
-            const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
-            const postData = { message: postText, username: username, sessionId };  // Include username and session ID
-            try {
-                const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(postData),
-                });
-
-                if (response.ok) {
-                    const newPost = await response.json();
-                    addPostToFeed(newPost);  // Add the new post to the feed immediately
-                    document.getElementById('postText').value = ''; // Clear input
-                    
-                    // Publish the new post to Ably to notify all users
-                    channel.publish('newOpinion', newPost);
-                }
-            } catch (error) {
-                console.error('Error posting opinion:', error);
-            }
-        }
-    }
-
     // Real-time updates from Ably
     channel.subscribe('newOpinion', function (message) {
         addPostToFeed(message.data);  // Add new opinion in real-time
