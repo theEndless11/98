@@ -11,23 +11,11 @@ const postSchema = new mongoose.Schema({
 
 // Create the model for posts
 const Post = mongoose.model('Post', postSchema);
-
-// Serverless API handler for handling different request types
 export default async function handler(req, res) {
     await connectToDatabase(); // Ensure you're connected to the database
 
-    if (req.method === 'GET') {
+    if (req.method === 'DELETE') {
         try {
-            // Fetch posts from the database, sorted by the timestamp in descending order
-            const posts = await Post.find().sort({ timestamp: -1 });
-            res.status(200).json(posts); // Send posts as a JSON response
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Error retrieving posts', error });
-        }
-    } else if (req.method === 'DELETE') {
-        try {
-            // Ensure postId, username, and sessionId are passed in the request body
             const { postId, username, sessionId } = req.body;
 
             if (!postId || !username || !sessionId) {
@@ -59,13 +47,12 @@ export default async function handler(req, res) {
 
             res.status(200).json({ message: 'Post deleted successfully' });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Error deleting post', error });
+            console.error('Error in deletePost API:', error);  // Log full error details
+            res.status(500).json({ message: 'Error deleting post', error: error.message });
         }
     } else {
         // If the request method is not supported
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
-
 
