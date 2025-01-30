@@ -9,26 +9,25 @@
     <body>
         <button id="clearHistoryBtn">Clear History</button>
 <script>document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
-
 async function clearHistory() {
     const confirmation = confirm("Are you sure you want to clear your history? This will permanently delete posts from expired sessions.");
 
     if (confirmation) {
         try {
-            // Call the backend API to clear history
-            const response = await fetch('/api/clearHistory', {
+            const response = await fetch('/api/deletePost', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                    clearHistory: true,
+                }),
             });
 
             const result = await response.json();
 
             if (response.ok) {
-                alert("Your history has been cleared.");
-                // Optionally, hide or disable the button after clearing
-                document.getElementById('clearHistoryBtn').style.display = 'none';
+                alert(result.message);
             } else {
                 alert("Error: " + result.message);
             }
@@ -38,6 +37,7 @@ async function clearHistory() {
         }
     }
 }
+
 </script>
         <div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Emoji Button for Dark Mode -->
 <div class="floating-nav">
