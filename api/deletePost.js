@@ -8,7 +8,8 @@ const postSchema = new mongoose.Schema({
     username: String,
     sessionId: String,
 });
-
+// Create the model for posts
+const Post = mongoose.model('Post', postSchema);
 export default async function handler(req, res) {
     await connectToDatabase(); // Ensure you're connected to the database
 
