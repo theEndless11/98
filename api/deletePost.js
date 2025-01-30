@@ -15,18 +15,16 @@ const Post = mongoose.model('Post', postSchema);
 // Define session expiration time (1 hour in milliseconds)
 const sessionExpirationTime = 60 * 60 * 1000;  // 1 hour in milliseconds
 
-// Function to delete expired posts
 async function deleteExpiredPosts() {
     try {
-        const currentTime = Date.now(); // Current time in milliseconds
-        console.log(`Checking for expired posts. Current time: ${currentTime}`);
+        const currentTime = Date.now();
 
         // Find all posts with expired sessions (older than the expiration time)
         const expiredPosts = await Post.find({
             timestamp: { $lte: new Date(currentTime - sessionExpirationTime) }
         });
 
-        console.log(`Found ${expiredPosts.length} expired posts.`);
+        console.log('Expired Posts:', expiredPosts);  // Log the expired posts
 
         if (expiredPosts.length > 0) {
             // Delete expired posts
@@ -34,7 +32,7 @@ async function deleteExpiredPosts() {
                 _id: { $in: expiredPosts.map(post => post._id) }
             });
 
-            console.log(`${result.deletedCount} expired posts deleted.`);
+            console.log(`${result.deletedCount} expired posts deleted.`);  // Log the deletion result
         } else {
             console.log('No expired posts found.');
         }
