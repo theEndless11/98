@@ -443,6 +443,8 @@ async function deletePost(postId) {
 
     if (confirmation) {
         try {
+            console.log(`Attempting to delete post with ID: ${postId}`);
+
             // Make the DELETE request to the server first
             const response = await fetch(`/api/deletePost`, {
                 method: 'DELETE',
@@ -456,10 +458,13 @@ async function deletePost(postId) {
                 }),
             });
 
+            // Log the response for debugging
             const result = await response.json();
+            console.log('Server response:', result);
 
             // If the response is not successful, throw an error
             if (!response.ok) {
+                console.error('Failed to delete post:', result);
                 throw new Error(result.message || 'Failed to delete post');
             }
 
@@ -479,7 +484,6 @@ async function deletePost(postId) {
     }
 }
 
-
     // Function to remove a post from the feed after deletion
     function removePostFromFeed(postId) {
         const postCards = document.querySelectorAll('.post-card');
@@ -487,17 +491,6 @@ async function deletePost(postId) {
             const cardId = card.getAttribute('data-id');
             if (cardId === postId) {
                 card.remove();
-            }
-        });
-    }
-
-    // Function to update post in the feed after edit
-    function updatePostInFeed(updatedPost) {
-        const postCards = document.querySelectorAll('.post-card');
-        postCards.forEach(card => {
-            if (card.getAttribute('data-id') === updatedPost.id) {
-                card.querySelector('p').innerHTML = `<strong>${updatedPost.username}</strong>: ${updatedPost.message}`;
-                card.querySelector('.timestamp').innerText = new Date(updatedPost.timestamp).toLocaleString();
             }
         });
     }
