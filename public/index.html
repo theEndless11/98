@@ -618,7 +618,7 @@ async function deletePost(postId) {
     const confirmation = confirm("Are you sure you want to delete this post?");
     if (confirmation) {
         try {
-            const response = await fetch('/api/deletePost', {  // Correct path for delete
+            const response = await fetch('/api/deletePost', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -630,7 +630,9 @@ async function deletePost(postId) {
                 }),
             });
 
-            const result = await response.json();  // Ensure the server returns a JSON response
+            // Log response status and body for better debugging
+            const result = await response.json();
+            console.log('API Response:', result);
 
             if (!response.ok) {
                 throw new Error(result.message || 'Failed to delete post');
@@ -640,11 +642,12 @@ async function deletePost(postId) {
             channel.publish('deleteOpinion', { id: postId });
             removePostFromFeed(postId);  // Remove post from the feed on successful delete
         } catch (error) {
-            console.error('Error deleting post:', error.message);
+            console.error('Error deleting post:', error);  // Log the full error object
             alert("Error deleting post: " + error.message);  // Show alert for user-friendly message
         }
     }
 }
+
 
 
 
