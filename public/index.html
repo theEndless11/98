@@ -243,6 +243,12 @@ function toggleDarkMode() {
   .error-notification {
     background-color: #f44336;
   }
+    #submitBtn:hover {
+    background-color: #45a049;  /* Slightly darker shade when hovering */
+    transform: scale(1.05);  /* Button grows a bit on hover */
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
 </style>
 <script>
     // Button event to post a new opinion
@@ -325,6 +331,7 @@ function showNotification(message, isError = false) {
     <script src="https://cdn.ably.io/lib/ably.min.js"></script>
 </body>
 </html>
+
  <script>
     const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Your Ably API key
     const channel = ably.channels.get('opinions');
@@ -344,17 +351,17 @@ function showNotification(message, isError = false) {
     // Button event to post a new opinion
     document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
-    // Fetch past messages and subscribe to Ably updates in parallel when the page loads
+    // Fetch past messages when the page loads
     window.onload = async () => {
         try {
-            // Start fetching posts and subscribing to Ably in parallel
-            const fetchPostsPromise = fetchPosts();  // Fetch previous posts
-            const ablySubscribePromise = subscribeToAbly();  // Subscribe to Ably updates
-
-            // Wait for both operations to finish
-            await Promise.all([fetchPostsPromise, ablySubscribePromise]);
+            const posts = await fetchPosts();  // Fetch previous posts
+            if (posts && posts.length > 0) {
+                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+            } else {
+                console.log("No previous posts found.");
+            }
         } catch (error) {
-            console.error("Error initializing page: ", error);
+            console.error("Error loading posts: ", error);
         }
     }
 
@@ -364,26 +371,11 @@ function showNotification(message, isError = false) {
             const response = await fetch('/api/posts');  // Ensure this path matches your backend
             if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
             const posts = await response.json();
-            posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+            return posts;
         } catch (error) {
             console.error('Error fetching posts:', error);  // Log any errors
+            return [];  // Return an empty array if there was an error
         }
-    }
-
-    // Function to subscribe to Ably for real-time updates
-    async function subscribeToAbly() {
-        // Real-time updates from Ably
-        channel.subscribe('newOpinion', function (message) {
-            addPostToFeed(message.data);  // Add new opinion in real-time
-        });
-
-        channel.subscribe('editOpinion', function (message) {
-            updatePostInFeed(message.data);  // Handle post edit in real-time
-        });
-
-        channel.subscribe('deleteOpinion', function (message) {
-            removePostFromFeed(message.data.id);  // Remove deleted post in real-time
-        });
     }
 
     // Handle posting a new opinion
@@ -393,12 +385,7 @@ function showNotification(message, isError = false) {
             const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
             const postData = { message: postText, username: username, sessionId };  // Include username and session ID
             try {
-                // Optimistic UI Update: Immediately add post to the feed
-                const optimisticPost = { message: postText, username: username, sessionId };
-                addPostToFeed(optimisticPost);  // Add new post to feed
-
-                // Send the post to the server
-                const response = await fetch('/api/postOpinion', {
+                const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(postData),
@@ -406,22 +393,35 @@ function showNotification(message, isError = false) {
 
                 if (response.ok) {
                     const newPost = await response.json();
-                    channel.publish('newOpinion', newPost);  // Publish the new post to Ably
-                } else {
-                    throw new Error('Failed to post opinion');
+                    addPostToFeed(newPost);  // Add the new post to the feed immediately
+                    document.getElementById('postText').value = ''; // Clear input
+                    
+                    // Publish the new post to Ably to notify all users
+                    channel.publish('newOpinion', newPost);
                 }
-
-                document.getElementById('postText').value = ''; // Clear input
             } catch (error) {
                 console.error('Error posting opinion:', error);
-                // Handle failed post (remove the optimistic UI update or show error)
             }
         }
     }
 
+    // Real-time updates from Ably
+    channel.subscribe('newOpinion', function (message) {
+        addPostToFeed(message.data);  // Add new opinion in real-time
+    });
+
+    channel.subscribe('editOpinion', function (message) {
+        updatePostInFeed(message.data);  // Handle post edit in real-time
+    });
+
+    channel.subscribe('deleteOpinion', function (message) {
+        removePostFromFeed(message.data.id);  // Remove deleted post in real-time
+    });
+
     // Edit post functionality
     function editPost(postId, postUsername) {
         const currentUsername = username;
+
         if (postUsername !== currentUsername) {
             alert("You can only edit your own posts.");
             return;
@@ -430,13 +430,15 @@ function showNotification(message, isError = false) {
         const postText = prompt('Edit your opinion:');
         if (postText) {
             const updatedPost = { id: postId, message: postText, timestamp: new Date(), username: currentUsername };
-            channel.publish('editOpinion', updatedPost);  // Publish the edit to Ably
-            updatePostInFeed(updatedPost);  // Update the UI immediately
+            // Send the edited post to Ably and MongoDB
+            channel.publish('editOpinion', updatedPost);
+
+            // Update the UI for immediate feedback
+            updatePostInFeed(updatedPost);
         }
     }
 
- // Delete post functionality
-  async function deletePost(postId) {
+async function deletePost(postId) {
     const currentUsername = username;
     const sessionId = sessionStorage.getItem('sessionId');
 
@@ -446,13 +448,13 @@ function showNotification(message, isError = false) {
 
     if (confirmation) {
         try {
-            const response = await fetch(`/api/deletePost`, {  // Correct path for delete
+            const response = await fetch(`/api/deletePost`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    postId: postId,  // Include postId in the body
+                    postId: postId,
                     username: currentUsername,
                     sessionId: sessionId
                 }),
@@ -465,11 +467,16 @@ function showNotification(message, isError = false) {
             }
 
             console.log('Post deleted:', result);
+
+            // Show success notification
+            showNotification('Post deleted successfully!', false);
+
             channel.publish('deleteOpinion', { id: postId });
             removePostFromFeed(postId);
         } catch (error) {
             console.error('Error deleting post:', error.message);
-            alert("Error deleting post: " + error.message);  // Show alert for user-friendly message
+            // Show error notification
+            showNotification('Error deleting post: ' + error.message, true);
         }
     }
 }
@@ -485,45 +492,44 @@ function showNotification(message, isError = false) {
         });
     }
 
-    // Update post in feed after edit
-    function updatePostInFeed(updatedPost) {
-        const postCards = document.querySelectorAll('.post-card');
-        postCards.forEach(card => {
-            const cardId = card.getAttribute('data-id'); 
-            if (cardId === updatedPost.id) {
-                card.querySelector('p').textContent = `${updatedPost.username}: ${updatedPost.message}`; 
-                card.querySelector('.timestamp').textContent = new Date(updatedPost.timestamp).toLocaleString(); 
-            }
-        });
+  function editPost(postId, postUsername) {
+    const currentUsername = username;
+
+    if (postUsername !== currentUsername) {
+        showNotification("You can only edit your own posts.", true);
+        return;
     }
+
+    const postText = prompt('Edit your opinion:');
+    if (postText) {
+        const updatedPost = { id: postId, message: postText, timestamp: new Date(), username: currentUsername };
+        channel.publish('editOpinion', updatedPost);
+        updatePostInFeed(updatedPost);
+
+        // Show success notification
+        showNotification('Post updated successfully!', false);
+    }
+}
+
 
     // Function to add a post to the feed (when posts are fetched or added)
     function addPostToFeed(post) {
         const postFeed = document.getElementById('posts');
         const postCard = document.createElement('div');
         postCard.className = 'post-card';
-        postCard.setAttribute('data-id', post.id); // Store the post ID in the card
+        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
 
         postCard.innerHTML = `
             <p><strong>${post.username}</strong>: ${post.message}</p>
             <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
             <div class="actions">
-                <button class="edit-btn" data-id="${post.id}" data-username="${post.username}">Edit</button>
-                <button class="delete-btn" data-id="${post.id}">Delete</button>
+                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+                <button onclick="deletePost('${post._id}')">Delete</button>
             </div>
         `;
 
         postFeed.appendChild(postCard);  // Add the new post card to the feed
     }
-
-    // Delegate event listeners for edit and delete buttons
-    document.getElementById('posts').addEventListener('click', function(event) {
-        if (event.target && event.target.className === 'edit-btn') {
-            editPost(event.target.dataset.id, event.target.dataset.username);
-        } else if (event.target && event.target.className === 'delete-btn') {
-            deletePost(event.target.dataset.id);
-        }
-    });
 
     // Helper function to generate a unique session ID
     function generateSessionId() {
@@ -541,6 +547,9 @@ function showNotification(message, isError = false) {
         return randomWords.join("");
     }
 </script>
+
+
+
 
 
 
