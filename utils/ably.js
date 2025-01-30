@@ -10,7 +10,14 @@ const channel = ably.channels.get('opinions');  // Use the same 'opinions' chann
  */
 export function publishToAbly(event, data) {
     return new Promise((resolve, reject) => {
-        channel.publish(event, data, (err) => {
+        // Serialize the data if needed
+        const serializedData = {
+            ...data,
+            timestamp: new Date().toISOString(),  // Add current timestamp
+        };
+
+        // Publish the event with the serialized data
+        channel.publish(event, serializedData, (err) => {
             if (err) {
                 console.error('Error publishing message to Ably:', err);
                 reject(err);
