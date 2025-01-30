@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 import { connectToDatabase } from '../utils/db'; // Your connection utility
 
@@ -13,14 +12,21 @@ const postSchema = new mongoose.Schema({
 // Create the model for posts
 const Post = mongoose.model('Post', postSchema);
 
+// Define session expiration time (1 hour in milliseconds)
+const sessionExpirationTime = 60 * 60 * 1000;  // 1 hour in milliseconds
+
+// Function to delete expired posts
 async function deleteExpiredPosts() {
     try {
-        const currentTime = Date.now();
+        const currentTime = Date.now(); // Current time in milliseconds
+        console.log(`Checking for expired posts. Current time: ${currentTime}`);
 
         // Find all posts with expired sessions (older than the expiration time)
         const expiredPosts = await Post.find({
             timestamp: { $lte: new Date(currentTime - sessionExpirationTime) }
         });
+
+        console.log(`Found ${expiredPosts.length} expired posts.`);
 
         if (expiredPosts.length > 0) {
             // Delete expired posts
@@ -46,6 +52,7 @@ export default async function handler(req, res) {
         try {
             // If clearHistory flag is set, clear expired posts
             if (clearHistory) {
+                console.log("Clear history triggered.");
                 await deleteExpiredPosts();  // Clear expired posts
                 return res.status(200).json({ message: 'Expired posts cleared.' });
             }
