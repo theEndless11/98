@@ -332,7 +332,10 @@ async function postOpinion() {
 
             if (response.ok) {
                 const newPost = await response.json();
-                addPostToFeed(newPost);  // Add the new post to the feed immediately
+                
+                // Immediately add the new post to the feed at the top
+                addPostToFeed(newPost, true);  // 'true' ensures it's added at the top
+                
                 document.getElementById('postText').value = ''; // Clear input
                 
                 // Show success notification
@@ -352,6 +355,7 @@ async function postOpinion() {
         }
     }
 }
+
 
 // Function to show notification messages (for success or error)
 function showNotification(message, isError = false) {
@@ -375,29 +379,74 @@ function showNotification(message, isError = false) {
         notificationElement.classList.remove('show-notification');
     }, 3000);
 }
-  // Function to add a post to the feed (when posts are fetched or added)
-    function addPostToFeed(post, isNewPost = false) {
-        const postFeed = document.getElementById('posts');
-        const postCard = document.createElement('div');
-        postCard.className = 'post-card';
-        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+async function postOpinion() {
+    const postText = document.getElementById('postText').value.trim();
+    const submitBtn = document.getElementById('submitBtn');  // Reference to the button
 
-        postCard.innerHTML = `
-            <p><strong>${post.username}</strong>: ${post.message}</p>
-            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
-            <div class="actions">
-                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
-                <button onclick="deletePost('${post._id}')">Delete</button>
-            </div>
-        `;
+    if (postText !== '') {
+        const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
+        const postData = { message: postText, username: username, sessionId };  // Include username and session ID
+        
+        // Add the animation class to the button to show a "pop" effect
+        submitBtn.classList.add('button-clicked');
+        
+        try {
+            const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(postData),
+            });
 
-        if (isNewPost) {
-            // Prepend new post to the feed so it appears at the top
-            postFeed.prepend(postCard);  
-        } else {
-            postFeed.appendChild(postCard);  // Otherwise, append to the bottom
+            if (response.ok) {
+                const newPost = await response.json();
+                
+                // Immediately add the new post to the feed at the top
+                addPostToFeed(newPost, true);  // 'true' ensures it's added at the top
+                
+                document.getElementById('postText').value = ''; // Clear input
+                
+                // Show success notification
+                showNotification('Post submitted successfully!', false);
+
+                // Publish the new post to Ably to notify all users
+                channel.publish('newOpinion', newPost);
+            }
+        } catch (error) {
+            console.error('Error posting opinion:', error);
+            showNotification('Error submitting post: ' + error.message, true);  // Error notification
+        } finally {
+            // Remove the button animation after 0.2s to reset it
+            setTimeout(() => {
+                submitBtn.classList.remove('button-clicked');
+            }, 200);  // Matches the CSS transition time
         }
     }
+}
+
+// Function to add a post to the feed (when posts are fetched or added)
+function addPostToFeed(post, isNewPost = false) {
+    const postFeed = document.getElementById('posts');
+    const postCard = document.createElement('div');
+    postCard.className = 'post-card';
+    postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+
+    postCard.innerHTML = `
+        <p><strong>${post.username}</strong>: ${post.message}</p>
+        <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+        <div class="actions">
+            <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+            <button onclick="deletePost('${post._id}')">Delete</button>
+        </div>
+    `;
+
+    if (isNewPost) {
+        // Prepend new post to the feed so it appears at the top
+        postFeed.prepend(postCard);  
+    } else {
+        postFeed.appendChild(postCard);  // Otherwise, append to the bottom
+    }
+}
+
     // Real-time updates from Ably
     channel.subscribe('newOpinion', function (message) {
         addPostToFeed(message.data);  // Add new opinion in real-time
