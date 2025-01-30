@@ -198,7 +198,121 @@ function toggleDarkMode() {
             <textarea id="postText" placeholder="What’s on your mind?" rows="4"></textarea>
             <button id="submitBtn">Post Opinion</button>
         </div>
+<style>
+  /* Style for the Post Opinion button */
+  #submitBtn {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+  }
 
+  /* Add a "pop" effect on button click */
+  .button-clicked {
+    transform: scale(1.1);
+  }
+
+  /* Style for the notification container */
+  .notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4caf50;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out, top 0.5s ease-in-out;
+    z-index: 1000;
+  }
+
+  /* Show the notification with animation */
+  .show-notification {
+    opacity: 1;
+    top: 30px;
+  }
+
+  /* Add an error style */
+  .error-notification {
+    background-color: #f44336;
+  }
+</style>
+<script>
+    // Button event to post a new opinion
+document.getElementById('submitBtn').addEventListener('click', postOpinion);
+
+async function postOpinion() {
+    const postText = document.getElementById('postText').value.trim();
+    const submitBtn = document.getElementById('submitBtn');  // Reference to the button
+
+    if (postText !== '') {
+        const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
+        const postData = { message: postText, username: username, sessionId };  // Include username and session ID
+        
+        // Add the animation class to the button to show a "pop" effect
+        submitBtn.classList.add('button-clicked');
+        
+        try {
+            const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(postData),
+            });
+
+            if (response.ok) {
+                const newPost = await response.json();
+                addPostToFeed(newPost);  // Add the new post to the feed immediately
+                document.getElementById('postText').value = ''; // Clear input
+                
+                // Show success notification
+                showNotification('Post submitted successfully!', false);
+
+                // Publish the new post to Ably to notify all users
+                channel.publish('newOpinion', newPost);
+            }
+        } catch (error) {
+            console.error('Error posting opinion:', error);
+            showNotification('Error submitting post: ' + error.message, true);  // Error notification
+        } finally {
+            // Remove the button animation after 0.2s to reset it
+            setTimeout(() => {
+                submitBtn.classList.remove('button-clicked');
+            }, 200);  // Matches the CSS transition time
+        }
+    }
+}
+
+// Function to show notification messages (for success or error)
+function showNotification(message, isError = false) {
+    const notificationElement = document.getElementById('notification');
+    const messageElement = document.getElementById('notificationMessage');
+    
+    messageElement.textContent = message;
+
+    // Set the style for error or success
+    if (isError) {
+        notificationElement.classList.add('error-notification');
+    } else {
+        notificationElement.classList.remove('error-notification');
+    }
+
+    // Show the notification with animation
+    notificationElement.classList.add('show-notification');
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        notificationElement.classList.remove('show-notification');
+    }, 3000);
+}
+
+</script>
         <div id="posts" class="posts-feed">
             <!-- Existing posts will be loaded here -->
         </div>
@@ -321,17 +435,15 @@ function toggleDarkMode() {
         }
     }
 
-    // Delete post functionality
-  async function deletePost(postId) {
+// Delete post functionality
+async function deletePost(postId) {
     const currentUsername = username;
     const sessionId = sessionStorage.getItem('sessionId');
-
-    console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
-
     const confirmation = confirm("Are you sure you want to delete this post?");
 
     if (confirmation) {
         try {
+            // Make the DELETE request to the server first
             const response = await fetch(`/api/deletePost`, {
                 method: 'DELETE',
                 headers: {
@@ -346,24 +458,27 @@ function toggleDarkMode() {
 
             const result = await response.json();
 
+            // If the response is not successful, throw an error
             if (!response.ok) {
                 throw new Error(result.message || 'Failed to delete post');
             }
 
-            console.log('Post deleted:', result);
+            // Now remove the post from the feed
+            removePostFromFeed(postId);
 
             // Show success notification
             showNotification('Post deleted successfully!', false);
 
+            // Publish the deletion to Ably for real-time updates
             channel.publish('deleteOpinion', { id: postId });
-            removePostFromFeed(postId);
         } catch (error) {
             console.error('Error deleting post:', error.message);
-            // Show error notification
+            // Show error notification if something goes wrong
             showNotification('Error deleting post: ' + error.message, true);
         }
     }
 }
+
 
     // Function to remove a post from the feed after deletion
     function removePostFromFeed(postId) {
