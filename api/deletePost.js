@@ -9,8 +9,6 @@ const postSchema = new mongoose.Schema({
     sessionId: String,
 });
 
-// Create the model for posts
-const Post = mongoose.model('Post', postSchema);
 export default async function handler(req, res) {
     await connectToDatabase(); // Ensure you're connected to the database
 
@@ -27,8 +25,8 @@ export default async function handler(req, res) {
                 return res.status(400).json({ message: 'Invalid postId' });
             }
 
-            // Convert postId to a valid ObjectId if it's a valid string
-            const objectId = mongoose.Types.ObjectId(postId);
+            // Convert postId to a valid ObjectId using the 'new' keyword
+            const objectId = new mongoose.Types.ObjectId(postId);  // This is the correct way
 
             // Find the post by postId
             const post = await Post.findById(objectId);
@@ -55,4 +53,3 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
-
