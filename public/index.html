@@ -478,7 +478,7 @@ function updatePostInFeed(updatedPost) {
         // Update the likes, dislikes, and comments of the post
         postCard.querySelector('.actions button:nth-child(1)').textContent = `👍 ${updatedPost.likes || 0}`;
         postCard.querySelector('.actions button:nth-child(2)').textContent = `👎 ${updatedPost.dislikes || 0}`;
-        postCard.querySelector('.actions button:nth-child(3)').textContent = `💬 Comments (${updatedPost.comments ? updatedPost.comments.length : 0})`;
+        postCard.querySelector('.actions button:nth-child(3)').textContent = `💬 (${updatedPost.comments ? updatedPost.comments.length : 0})`;
 
         // Optionally, update the comments section if needed
         const commentsList = postCard.querySelector('.comments-list');
