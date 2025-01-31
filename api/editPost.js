@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { connectToDatabase } from '../../utils/db'; // Your connection utility
+import { connectToDatabase } from '../utils/db'; // Your connection utility
 
 // Define the schema for the post
 const postSchema = new mongoose.Schema({
