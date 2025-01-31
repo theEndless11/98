@@ -369,24 +369,41 @@ function toggleDarkMode() {
 
 // Like a post
 async function likePost(postId) {
+    const currentUsername = username;
+    const sessionId = sessionStorage.getItem('sessionId');
+
+    console.log(`Attempting to like post ID: ${postId} by user: ${currentUsername}`);
+
     try {
-   const response = await fetch(`/api/editPost`, {
+        const response = await fetch(`/api/editPost`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                username, 
-                action: 'like' // Specify action as 'like'
-            })
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                postId: postId,
+                username: currentUsername,
+                action: 'like'  // Specify the action as 'like'
+            }),
         });
 
-        if (response.ok) {
-            const updatedPost = await response.json();
-            updatePostInFeed(updatedPost); // Update the post in the feed
-        } else {
-            console.error('Error liking post:', await response.text());
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to like post');
         }
+
+        console.log('Post liked:', result);
+
+        // Show success notification
+        showNotification('Post liked successfully!', false);
+
+        // Publish the update to Ably
+        channel.publish('likePost', { id: postId, likes: result.likes });
+        updatePostInFeed(result); // Update the post in the feed
     } catch (error) {
-        console.error('Error liking post:', error);
+        console.error('Error liking post:', error.message);
+        showNotification('Error liking post: ' + error.message, true);
     }
 }
 
