@@ -61,6 +61,7 @@ export default async function handler(req, res) {
                 post.dislikes += 1;
                 post.dislikedBy.push(username); // Add the user to the dislikedBy array
 
+           
             // Handle the "comment" action
             } else if (action === 'comment') {
                 if (!comment || !comment.trim()) {
@@ -84,4 +85,3 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
-
