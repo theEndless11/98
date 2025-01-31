@@ -408,26 +408,42 @@ async function likePost(postId) {
 }
 
 
-  // Dislike a post
 async function dislikePost(postId) {
+    const currentUsername = username;
+    const sessionId = sessionStorage.getItem('sessionId');
+
+    console.log(`Attempting to dislike post ID: ${postId} by user: ${currentUsername}`);
+
     try {
-        const response = await fetch(`/api/editPost/${postId}`, {
+        const response = await fetch(`/api/editPost`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                username, 
-                action: 'dislike' // Specify action as 'dislike'
-            })
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                postId: postId,
+                username: currentUsername,
+                action: 'dislike'  // Specify the action as 'dislike'
+            }),
         });
 
-        if (response.ok) {
-            const updatedPost = await response.json();
-            updatePostInFeed(updatedPost); // Update the post in the feed
-        } else {
-            console.error('Error disliking post:', await response.text());
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to dislike post');
         }
+
+        console.log('Post disliked:', result);
+
+        // Show success notification
+        showNotification('Post disliked successfully!', false);
+
+        // Publish the update to Ably
+        channel.publish('dislikePost', { id: postId, dislikes: result.dislikes });
+        updatePostInFeed(result); // Update the post in the feed
     } catch (error) {
-        console.error('Error disliking post:', error);
+        console.error('Error disliking post:', error.message);
+        showNotification('Error disliking post: ' + error.message, true);
     }
 }
 
@@ -442,31 +458,52 @@ async function dislikePost(postId) {
 async function addComment(postId) {
     const commentInput = document.getElementById(`commentInput-${postId}`);
     const commentText = commentInput.value.trim();
+    const currentUsername = username;
+    const sessionId = sessionStorage.getItem('sessionId');
 
     if (commentText) {
+        console.log(`Attempting to add comment to post ID: ${postId} by user: ${currentUsername}`);
+
         try {
-            const response = await fetch(`/api/editPost/${postId}`, {
+            const response = await fetch(`/api/editPost`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({
-                    username,
-                    action: 'comment', // Specify action as 'comment'
-                    comment: commentText
-                })
+                    postId: postId,
+                    username: currentUsername,
+                    action: 'comment',  // Specify the action as 'comment'
+                    comment: commentText  // Pass the comment text
+                }),
             });
 
-            if (response.ok) {
-                const updatedPost = await response.json();
-                updatePostInFeed(updatedPost); // Update the post in the feed
-                commentInput.value = ''; // Clear input
-            } else {
-                console.error('Error adding comment:', await response.text());
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to add comment');
             }
+
+            console.log('Comment added:', result);
+
+            // Show success notification
+            showNotification('Comment added successfully!', false);
+
+            // Publish the update to Ably
+            channel.publish('addComment', { id: postId, comment: result.comments[result.comments.length - 1] });
+            updatePostInFeed(result); // Update the post in the feed
+
+            // Clear the comment input
+            commentInput.value = '';
         } catch (error) {
-            console.error('Error adding comment:', error);
+            console.error('Error adding comment:', error.message);
+            showNotification('Error adding comment: ' + error.message, true);
         }
+    } else {
+        showNotification('Comment cannot be empty!', true);
     }
 }
+
 // Function to update the post in the feed
 function updatePostInFeed(updatedPost) {
     // Find the post card by its ID
