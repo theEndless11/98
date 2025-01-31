@@ -367,41 +367,52 @@ function toggleDarkMode() {
         }
     }
 
-    // Like a post
-    async function likePost(postId) {
-        try {
-            const response = await fetch(`/api/editPost`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username })
-            });
+// Like a post
+async function likePost(postId) {
+    try {
+        const response = await fetch(`/api/editPost/${postId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                username, 
+                action: 'like' // Specify action as 'like'
+            })
+        });
 
-            if (response.ok) {
-                const updatedPost = await response.json();
-                updatePostInFeed(updatedPost); // Update the post in the feed
-            }
-        } catch (error) {
-            console.error('Error liking post:', error);
+        if (response.ok) {
+            const updatedPost = await response.json();
+            updatePostInFeed(updatedPost); // Update the post in the feed
+        } else {
+            console.error('Error liking post:', await response.text());
         }
+    } catch (error) {
+        console.error('Error liking post:', error);
     }
+}
 
-    // Dislike a post
-    async function dislikePost(postId) {
-        try {
-          const response = await fetch(`/api/editPost`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username })
-            });
+  // Dislike a post
+async function dislikePost(postId) {
+    try {
+        const response = await fetch(`/api/editPost/${postId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                username, 
+                action: 'dislike' // Specify action as 'dislike'
+            })
+        });
 
-            if (response.ok) {
-                const updatedPost = await response.json();
-                updatePostInFeed(updatedPost); // Update the post in the feed
-            }
-        } catch (error) {
-            console.error('Error disliking post:', error);
+        if (response.ok) {
+            const updatedPost = await response.json();
+            updatePostInFeed(updatedPost); // Update the post in the feed
+        } else {
+            console.error('Error disliking post:', await response.text());
         }
+    } catch (error) {
+        console.error('Error disliking post:', error);
     }
+}
+
 
     // Toggle comments section
     function toggleComments(postId) {
@@ -409,29 +420,35 @@ function toggleDarkMode() {
         commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
     }
 
-    // Add a comment to a post
-    async function addComment(postId) {
-        const commentInput = document.getElementById(`commentInput-${postId}`);
-        const commentText = commentInput.value.trim();
+   // Add a comment to a post
+async function addComment(postId) {
+    const commentInput = document.getElementById(`commentInput-${postId}`);
+    const commentText = commentInput.value.trim();
 
-        if (commentText) {
-            try {
-                 const response = await fetch(`/api/editPost`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, comment: commentText })
-                });
+    if (commentText) {
+        try {
+            const response = await fetch(`/api/editPost/${postId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username,
+                    action: 'comment', // Specify action as 'comment'
+                    comment: commentText
+                })
+            });
 
-                if (response.ok) {
-                    const updatedPost = await response.json();
-                    updatePostInFeed(updatedPost); // Update the post in the feed
-                    commentInput.value = ''; // Clear input
-                }
-            } catch (error) {
-                console.error('Error adding comment:', error);
+            if (response.ok) {
+                const updatedPost = await response.json();
+                updatePostInFeed(updatedPost); // Update the post in the feed
+                commentInput.value = ''; // Clear input
+            } else {
+                console.error('Error adding comment:', await response.text());
             }
+        } catch (error) {
+            console.error('Error adding comment:', error);
         }
     }
+}
 
     // Edit post functionality
     function editPost(postId, postUsername) {
