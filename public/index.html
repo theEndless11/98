@@ -370,7 +370,7 @@ function toggleDarkMode() {
 // Like a post
 async function likePost(postId) {
     try {
-     const response = await fetch(`/api/editPost/${postId}`, {
+   const response = await fetch(`/api/editPost`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
