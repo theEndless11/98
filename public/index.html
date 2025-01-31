@@ -328,7 +328,6 @@ async function dislikePost(postId) {
     }
 }
 
-
     // Toggle comments section
     function toggleComments(postId) {
         const commentsSection = document.getElementById(`comments-${postId}`);
@@ -469,7 +468,26 @@ function updatePostInFeed(updatedPost) {
             }
         });
     }
-      // Helper function to generate a unique session ID
+      // Function to add a post to the feed (when posts are fetched or added)
+    function addPostToFeed(post) {
+        const postFeed = document.getElementById('posts');
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+
+        postCard.innerHTML = `
+            <p><strong>${post.username}</strong>: ${post.message}</p>
+            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+            <div class="actions">
+                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+                <button onclick="deletePost('${post._id}')">Delete</button>
+            </div>
+        `;
+
+        postFeed.appendChild(postCard);  // Add the new post card to the feed
+    }
+
+    // Helper function to generate a unique session ID
     function generateSessionId() {
         return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     }
