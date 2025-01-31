@@ -370,7 +370,7 @@ function toggleDarkMode() {
     // Like a post
     async function likePost(postId) {
         try {
-            const response = await fetch(`/api/likePost/${postId}`, {
+            const response = await fetch(`/api/editPost`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username })
@@ -388,7 +388,7 @@ function toggleDarkMode() {
     // Dislike a post
     async function dislikePost(postId) {
         try {
-            const response = await fetch(`/api/dislikePost/${postId}`, {
+          const response = await fetch(`/api/editPost`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username })
@@ -416,7 +416,7 @@ function toggleDarkMode() {
 
         if (commentText) {
             try {
-                const response = await fetch(`/api/addComment/${postId}`, {
+                 const response = await fetch(`/api/editPost`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, comment: commentText })
