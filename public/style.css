@@ -142,7 +142,7 @@ body.dark-mode .post-card .timestamp {
     color: #bbb;
 }
 
-/* Post Card Actions (Like/Dislike) */
+/* Post Card Actions (buttons) */
 .post-card .actions {
     display: flex;
     justify-content: flex-start;
@@ -151,7 +151,7 @@ body.dark-mode .post-card .timestamp {
     flex-wrap: wrap; /* Ensure buttons stay within view on smaller screens */
 }
 
-.post-card .actions button {
+.post-card button {
     background-color: transparent;
     border: none;
     color: #5c6bc0;
@@ -160,79 +160,12 @@ body.dark-mode .post-card .timestamp {
     padding: 10px;
 }
 
-body.dark-mode .post-card .actions button {
+body.dark-mode .post-card button {
     color: #fff;
 }
 
-.post-card .actions button:hover {
+.post-card button:hover {
     color: #3949ab;
-}
-
-/* "3-dot" Menu for Edit and Delete */
-.post-card .more-actions {
-    position: relative;
-    display: inline-block;
-}
-
-.post-card .more-actions-button {
-    background: transparent;
-    border: none;
-    color: #5c6bc0;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-body.dark-mode .post-card .more-actions-button {
-    color: #fff;
-}
-
-.post-card .more-actions-button:hover {
-    color: #3949ab;
-}
-
-.post-card .more-actions-content {
-    display: none;
-    position: absolute;
-    top: 30px;
-    right: 0;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 140px;
-    z-index: 9999;
-    padding: 10px;
-    color: #333;
-}
-
-body.dark-mode .post-card .more-actions-content {
-    background-color: #333;
-    color: #fff;
-}
-
-.post-card .more-actions-content button {
-    background: transparent;
-    border: none;
-    color: #5c6bc0;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-    padding: 8px;
-}
-
-body.dark-mode .post-card .more-actions-content button {
-    color: #fff;
-}
-
-.post-card .more-actions-content button:hover {
-    background-color: #f1f1f1;
-}
-
-body.dark-mode .post-card .more-actions-content button:hover {
-    background-color: #555;
-}
-
-.post-card .more-actions:hover .more-actions-content {
-    display: block;
 }
 
 /* Footer Styling */
@@ -245,6 +178,167 @@ footer {
 
 body.dark-mode footer {
     color: #bbb;
+}
+
+/* Floating Navigation (FAB Buttons) */
+.floating-nav {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 9999;
+}
+
+.fab-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 18px;
+    font-size: 30px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 65px;
+    height: 65px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.fab-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.1);
+}
+
+/* Menu Options Styling */
+.nav-options {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.nav-options.visible {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.nav-option {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 10px;
+    width: 120px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.nav-option:hover {
+    background-color: #0056b3;
+}
+
+/* Overlay Styling */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    display: none;
+}
+
+.overlay.visible {
+    display: flex;
+}
+
+/* Content Container */
+.content-container {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 550px;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Close Button Styling */
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+/* Button Click Animation */
+.button-clicked {
+    transform: scale(1.1);
+}
+
+/* Notification Styling */
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4caf50;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out, top 0.5s ease-in-out;
+    z-index: 1000;
+}
+
+.notification.show-notification {
+    opacity: 1;
+    top: 30px;
+}
+
+.error-notification {
+    background-color: #f44336;
+}
+
+/* Comment Section Styling */
+.comments-section {
+    margin-top: 15px;
+    padding: 12px;
+    border-top: 2px solid #ddd;
+}
+
+.comment {
+    margin: 8px 0;
+    padding: 8px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.comment:hover {
+    background-color: #f1f1f1;
 }
 
 /* Mobile Styling */
@@ -262,7 +356,7 @@ body.dark-mode footer {
     }
 
     .post-card .actions {
-        justify-content: center;
+        justify-content: center; /* Center the like/dislike buttons on smaller screens */
         gap: 20px;
     }
 
