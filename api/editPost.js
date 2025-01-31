@@ -9,14 +9,16 @@ const postSchema = new mongoose.Schema({
     sessionId: String,
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
-    comments: [{ username: String, comment: String }],
+    likedBy: [String],  // Store usernames or user IDs of users who liked the post
+    dislikedBy: [String],  // Store usernames or user IDs of users who disliked the post
+    comments: [{ username: String, comment: String, timestamp: Date }]
 });
 
 // Create the model for posts
 const Post = mongoose.model('Post', postSchema);
 
 export default async function handler(req, res) {
-    const { postId, username, action, comment } = req.body;  // Extract postId from body
+    const { postId, username, action, comment } = req.body;
 
     await connectToDatabase(); // Ensure you're connected to the DB
 
@@ -29,16 +31,34 @@ export default async function handler(req, res) {
                 return res.status(404).json({ message: 'Post not found' });
             }
 
-            // Handle different actions: like, dislike, comment
+            // Handle the "like" action
             if (action === 'like') {
+                // Check if the user has already liked this post
+                if (post.likedBy.includes(username)) {
+                    return res.status(400).json({ message: 'You have already liked this post' });
+                }
+
                 post.likes += 1;
+                post.likedBy.push(username); // Add the user to the likedBy array
+
+            // Handle the "dislike" action
             } else if (action === 'dislike') {
+                // Check if the user has already disliked this post
+                if (post.dislikedBy.includes(username)) {
+                    return res.status(400).json({ message: 'You have already disliked this post' });
+                }
+
                 post.dislikes += 1;
+                post.dislikedBy.push(username); // Add the user to the dislikedBy array
+
+            // Handle the "comment" action
             } else if (action === 'comment') {
                 if (!comment || !comment.trim()) {
                     return res.status(400).json({ message: 'Comment cannot be empty' });
                 }
+
                 post.comments.push({ username, comment, timestamp: new Date() });
+
             } else {
                 return res.status(400).json({ message: 'Invalid action type' });
             }
@@ -54,3 +74,4 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
+
