@@ -90,21 +90,10 @@
     
     <script src="https://cdn.ably.io/lib/ably.min.js"></script>
 </body>
-</html>
  <script>
     const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Your Ably API key
     const channel = ably.channels.get('opinions');
-        // Generate a unique session ID if it doesn't exist in sessionStorage
-    if (!sessionStorage.getItem('sessionId')) {
-        sessionStorage.setItem('sessionId', generateSessionId());
-    }
-
-    // Generate a unique 4-word username for the user
-    let username = localStorage.getItem('username');
-    if (!username) {
-        username = generateUsername();
-        localStorage.setItem('username', username);  // Save it in localStorage for "remember me"
-    }
+      
     
     // Button event to post a new opinion
     document.getElementById('submitBtn').addEventListener('click', postOpinion);
