@@ -173,7 +173,32 @@ function toggleDarkMode() {
         <div id="posts" class="posts-feed">
             <!-- Existing posts will be loaded here -->
         </div>
-       
+       <div class="post-card">
+    <p>Your opinion here...</p>
+    <div class="timestamp">Posted on: 2025-01-01</div>
+
+    <!-- Like/Dislike Buttons -->
+    <div class="actions">
+        <button>Like</button>
+        <button>Dislike</button>
+    </div>
+
+    <!-- 3-Dot Menu for Edit/Delete -->
+    <div class="more-actions">
+        <button class="more-actions-button">...</button>
+        <div class="more-actions-content">
+            <button>Edit</button>
+            <button>Delete</button>
+        </div>
+    </div>
+</div>
+<script>document.querySelectorAll('.more-actions-button').forEach(button => {
+    button.addEventListener('click', (e) => {
+        const menu = e.target.nextElementSibling; // The menu (more-actions-content)
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; // Toggle visibility
+    });
+});
+</script>
         <footer>
             <p>Powered by Ably & MongoDB Atlas</p>
         </footer>
