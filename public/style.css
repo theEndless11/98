@@ -16,6 +16,7 @@ body {
     height: 100vh;
     padding: 5px;
     overflow-x: hidden; /* Prevent horizontal scroll */
+    font-size: 14px; /* Smaller font size for faster rendering */
 }
 
 body.dark-mode {
@@ -26,11 +27,11 @@ body.dark-mode {
 /* Container Styling */
 .container {
     width: 100%;
-    max-width: 900px;
+    max-width: 800px; /* Smaller container width */
     background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -43,8 +44,8 @@ body.dark-mode .container {
 
 /* Heading Styling */
 h1 {
-    font-size: 32px;
-    margin-bottom: 25px;
+    font-size: 24px; /* Smaller heading */
+    margin-bottom: 15px;
     color: #2c3e50;
     text-align: center;
 }
@@ -57,17 +58,17 @@ body.dark-mode h1 {
 .form-container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 40px;
+    gap: 8px; /* Smaller gap */
+    margin-bottom: 25px;
     width: 100%;
 }
 
 /* Textarea Styling */
 textarea {
     width: 100%;
-    padding: 18px;
-    font-size: 16px;
-    border-radius: 12px;
+    padding: 12px; /* Smaller padding */
+    font-size: 14px; /* Smaller text */
+    border-radius: 10px;
     border: 1px solid #ddd;
     resize: none;
     transition: all 0.3s ease;
@@ -87,14 +88,14 @@ textarea:focus {
 
 /* Button Styling */
 button {
-    padding: 14px 20px;
+    padding: 10px 15px; /* Reduced padding */
     background-color: #5c6bc0;
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 16px;
+    font-size: 14px; /* Smaller font size */
 }
 
 button:hover {
@@ -109,15 +110,15 @@ button:active {
 /* Posts Feed Styling */
 .posts-feed {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 .post-card {
     background-color: #ffffff;
-    padding: 20px;
+    padding: 15px; /* Smaller padding */
     border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px; /* Reduced margin */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease;
@@ -129,12 +130,12 @@ body.dark-mode .post-card {
 }
 
 .post-card p {
-    font-size: 18px;
-    margin-bottom: 12px;
+    font-size: 16px; /* Smaller text */
+    margin-bottom: 8px;
 }
 
 .post-card .timestamp {
-    font-size: 14px;
+    font-size: 12px;
     color: #aaa;
 }
 
@@ -145,10 +146,11 @@ body.dark-mode .post-card .timestamp {
 /* Post Card Actions (buttons) */
 .post-card .actions {
     display: flex;
-    justify-content: flex-start;
-    gap: 12px;
+    justify-content: space-between; /* Spread the buttons */
+    gap: 8px; /* Reduced gap */
     margin-top: 10px;
-    flex-wrap: wrap; /* Ensure buttons stay within view on smaller screens */
+    flex-wrap: wrap;
+    align-items: center; /* Align buttons in center if space is small */
 }
 
 .post-card button {
@@ -156,8 +158,8 @@ body.dark-mode .post-card .timestamp {
     border: none;
     color: #5c6bc0;
     cursor: pointer;
-    font-size: 16px;
-    padding: 10px;
+    font-size: 14px; /* Reduced font size */
+    padding: 8px 10px;
 }
 
 body.dark-mode .post-card button {
@@ -170,8 +172,8 @@ body.dark-mode .post-card button {
 
 /* Footer Styling */
 footer {
-    margin-top: 40px;
-    font-size: 14px;
+    margin-top: 25px;
+    font-size: 12px; /* Smaller footer */
     color: #888;
     text-align: center;
 }
@@ -188,7 +190,7 @@ body.dark-mode footer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     z-index: 9999;
 }
 
@@ -196,13 +198,13 @@ body.dark-mode footer {
     background-color: #007BFF;
     color: white;
     border: none;
-    padding: 18px;
-    font-size: 30px;
+    padding: 12px;
+    font-size: 24px; /* Smaller icon size */
     cursor: pointer;
     border-radius: 50%;
-    width: 65px;
-    height: 65px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 55px;
+    height: 55px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
@@ -215,7 +217,7 @@ body.dark-mode footer {
 .nav-options {
     display: none;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     transition: opacity 0.3s ease, transform 0.3s ease;
     opacity: 0;
     transform: translateY(20px);
@@ -231,11 +233,11 @@ body.dark-mode footer {
     background-color: #007BFF;
     color: white;
     border: none;
-    padding: 12px;
-    font-size: 18px;
+    padding: 10px;
+    font-size: 14px; /* Smaller font size */
     cursor: pointer;
     border-radius: 10px;
-    width: 120px;
+    width: 100px;
     text-align: center;
     transition: background-color 0.3s ease;
 }
@@ -266,7 +268,7 @@ body.dark-mode footer {
 /* Content Container */
 .content-container {
     background-color: white;
-    padding: 25px;
+    padding: 20px;
     border-radius: 12px;
     width: 90%;
     max-width: 550px;
@@ -278,11 +280,11 @@ body.dark-mode footer {
 /* Close Button Styling */
 .close-btn {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 10px;
+    right: 10px;
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 20px;
     cursor: pointer;
     color: #333;
 }
@@ -304,9 +306,9 @@ body.dark-mode footer {
     transform: translateX(-50%);
     background-color: #4caf50;
     color: white;
-    padding: 15px;
+    padding: 12px;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 14px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease-in-out, top 0.5s ease-in-out;
@@ -324,14 +326,14 @@ body.dark-mode footer {
 
 /* Comment Section Styling */
 .comments-section {
-    margin-top: 15px;
-    padding: 12px;
+    margin-top: 10px;
+    padding: 10px;
     border-top: 2px solid #ddd;
 }
 
 .comment {
-    margin: 8px 0;
-    padding: 8px;
+    margin: 6px 0;
+    padding: 6px;
     background: #f9f9f9;
     border-radius: 8px;
     transition: background-color 0.3s ease;
@@ -344,35 +346,38 @@ body.dark-mode footer {
 /* Mobile Styling */
 @media (max-width: 768px) {
     .container {
-        padding: 20px;
-    }
-
-    h1 {
-        font-size: 26px;
-    }
-
-    .post-card {
-        padding: 18px;
-    }
-
-    .post-card .actions {
-        justify-content: center; /* Center the like/dislike buttons on smaller screens */
-        gap: 20px;
-    }
-
-    .post-card button {
-        font-size: 14px;
-        padding: 10px 14px;
-    }
-
-    .fab-btn {
         padding: 15px;
     }
 
+    h1 {
+        font-size: 22px; /* Smaller heading for mobile */
+    }
+
+    .post-card {
+        padding: 12px; /* Reduced padding */
+    }
+
+    .post-card .actions {
+        justify-content: space-between; /* Spread the actions horizontally */
+        gap: 6px; /* Smaller gap between buttons */
+        flex-wrap: nowrap; /* Prevent wrapping */
+    }
+
+    .post-card button {
+        font-size: 12px; /* Smaller font size */
+        padding: 6px 8px; /* Reduced padding */
+    }
+
+    .fab-btn {
+        padding: 10px; /* Smaller floating button */
+        font-size: 22px;
+    }
+
     .nav-option {
-        font-size: 16px;
+        font-size: 14px; /* Smaller nav options */
     }
 }
+
 .delete-modal {
     position: fixed;
     top: 0;
