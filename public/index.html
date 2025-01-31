@@ -174,37 +174,94 @@ function toggleDarkMode() {
             <!-- Existing posts will be loaded here -->
         </div>
        <div class="comments"></div>
-<button onclick="addComment('${post._id}')">Add Comment</button>
-<script>function addComment(postId) {
-    const commentText = prompt("Leave a comment:");
-    if (commentText) {
-        const comment = {
-            postId: postId,
-            message: commentText,
-            username: username,
-            timestamp: new Date(),
-        };
-        // Send comment to the server and update in real-time
-        channel.publish('newComment', comment);
-    }
-}
+<div class="post-card" data-id="${post._id}">
+    <p><strong>${post.username}</strong>: ${post.message}</p>
+    <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
 
-// Display comments under posts
-function displayComments(postId, comments) {
-    const postCard = document.querySelector(`[data-id="${postId}"]`);
-    const commentSection = postCard.querySelector('.comments');
-    commentSection.innerHTML = '';
-    comments.forEach(comment => {
+    <!-- Add Comment Button -->
+    <button onclick="addComment('${post._id}')">Add Comment</button>
+
+    <!-- Comments Section -->
+    <div class="comments">
+        <!-- Existing comments for the post will be displayed here -->
+    </div>
+</div>
+
+<script>
+    // Function to add a comment to a post
+    function addComment(postId) {
+        const commentText = prompt("Leave a comment:");
+        if (commentText) {
+            const comment = {
+                postId: postId,
+                message: commentText,
+                username: username, // Assumed username is stored in a variable
+                timestamp: new Date(),
+            };
+            
+            // Send comment to the server (via Ably in this case) and update in real-time
+            channel.publish('newComment', comment);
+            
+            // Optionally, increase reputation (can be added based on interaction)
+            increaseReputation(5); // 5 points for commenting
+        }
+    }
+
+    // Display comments under a specific post
+    function displayComments(postId, comments) {
+        const postCard = document.querySelector(`[data-id="${postId}"]`);
+        const commentSection = postCard.querySelector('.comments');
+
+        // Clear any existing comments in case we're refreshing
+        commentSection.innerHTML = '';
+
+        comments.forEach(comment => {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment';
+            commentDiv.innerHTML = `
+                <p><strong>${comment.username}</strong>: ${comment.message}</p>
+                <p class="timestamp">${new Date(comment.timestamp).toLocaleString()}</p>
+            `;
+            commentSection.appendChild(commentDiv);
+        });
+    }
+
+    // Real-time update when a new comment is added
+    channel.subscribe('newComment', function (message) {
+        const { postId, message: commentText, username, timestamp } = message.data;
+        
+        // Add the comment to the post's comment section
+        const postCard = document.querySelector(`[data-id="${postId}"]`);
+        const commentSection = postCard.querySelector('.comments');
+
         const commentDiv = document.createElement('div');
         commentDiv.className = 'comment';
         commentDiv.innerHTML = `
-            <p><strong>${comment.username}</strong>: ${comment.message}</p>
-            <p class="timestamp">${new Date(comment.timestamp).toLocaleString()}</p>
+            <p><strong>${username}</strong>: ${commentText}</p>
+            <p class="timestamp">${new Date(timestamp).toLocaleString()}</p>
         `;
         commentSection.appendChild(commentDiv);
     });
-}
+
+    // Example: Fetch existing comments when the page loads (optional)
+    async function fetchCommentsForPost(postId) {
+        try {
+            const response = await fetch(`/api/comments?postId=${postId}`); // Adjust to your backend endpoint
+            const comments = await response.json();
+            displayComments(postId, comments);
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        }
+    }
+
+    // Function to increase reputation (you can modify this as needed)
+    function increaseReputation(points) {
+        reputation += points; // Assumed reputation is a global variable
+        localStorage.setItem('reputation', reputation);
+        document.getElementById('reputation').innerText = `Reputation: ${reputation}`;
+    }
 </script>
+
         <footer>
             <p>Powered by Ably & MongoDB Atlas</p>
         </footer>
