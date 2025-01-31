@@ -435,29 +435,40 @@ async function dislikePost(postId) {
         commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
     }
 
-    // Add a comment to a post
-    async function addComment(postId) {
-        const commentInput = document.getElementById(`commentInput-${postId}`);
-        const commentText = commentInput.value.trim();
+  // Function to comment on a post
+async function addComment(postId) {
+    const commentInput = document.getElementById(`commentInput-${postId}`);
+    const commentText = commentInput.value.trim();
 
-        if (commentText) {
-            try {
-              const response = await fetch(`/api/editPost`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, comment: commentText })
-                });
+    if (commentText) {
+        try {
+            const response = await fetch(`/api/editPost`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    postId: postId,
+                    username: username,
+                    action: 'comment',
+                    comment: commentText
+                }),
+            });
 
-                if (response.ok) {
-                    const updatedPost = await response.json();
-                    updatePostInFeed(updatedPost); // Update the post in the feed
-                    commentInput.value = ''; // Clear input
-                }
-            } catch (error) {
-                console.error('Error adding comment:', error);
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to add comment');
             }
+
+            console.log('Post commented:', result);
+            updatePostInFeed(result);  // Update the post in the feed
+            commentInput.value = '';  // Clear input field
+        } catch (error) {
+            console.error('Error adding comment:', error.message);
         }
     }
+}
     // Function to update the post in the feed
 function updatePostInFeed(updatedPost) {
     // Find the post card by its ID
