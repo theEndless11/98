@@ -370,9 +370,6 @@ function toggleDarkMode() {
 // Like a post
 async function likePost(postId) {
     const currentUsername = username;
-    const sessionId = sessionStorage.getItem('sessionId');
-
-    console.log(`Attempting to like post ID: ${postId} by user: ${currentUsername}`);
 
     try {
         const response = await fetch(`/api/editPost`, {
@@ -383,7 +380,7 @@ async function likePost(postId) {
             body: JSON.stringify({
                 postId: postId,
                 username: currentUsername,
-                action: 'like'  // Specify the action as 'like'
+                action: 'like'
             }),
         });
 
@@ -394,25 +391,18 @@ async function likePost(postId) {
         }
 
         console.log('Post liked:', result);
-
-        // Show success notification
         showNotification('Post liked successfully!', false);
-
-        // Publish the update to Ably
         channel.publish('likePost', { id: postId, likes: result.likes });
-        updatePostInFeed(result); // Update the post in the feed
+        updatePostInFeed(result);  // Update the post in the feed
     } catch (error) {
         console.error('Error liking post:', error.message);
-        showNotification('Error liking post: ' + error.message, true);
+        showNotification(error.message, true);  // Show the error message if user already liked
     }
 }
 
 
 async function dislikePost(postId) {
     const currentUsername = username;
-    const sessionId = sessionStorage.getItem('sessionId');
-
-    console.log(`Attempting to dislike post ID: ${postId} by user: ${currentUsername}`);
 
     try {
         const response = await fetch(`/api/editPost`, {
@@ -423,7 +413,7 @@ async function dislikePost(postId) {
             body: JSON.stringify({
                 postId: postId,
                 username: currentUsername,
-                action: 'dislike'  // Specify the action as 'dislike'
+                action: 'dislike'
             }),
         });
 
@@ -434,16 +424,12 @@ async function dislikePost(postId) {
         }
 
         console.log('Post disliked:', result);
-
-        // Show success notification
         showNotification('Post disliked successfully!', false);
-
-        // Publish the update to Ably
         channel.publish('dislikePost', { id: postId, dislikes: result.dislikes });
-        updatePostInFeed(result); // Update the post in the feed
+        updatePostInFeed(result);  // Update the post in the feed
     } catch (error) {
         console.error('Error disliking post:', error.message);
-        showNotification('Error disliking post: ' + error.message, true);
+        showNotification(error.message, true);  // Show the error message if user already disliked
     }
 }
 
