@@ -145,9 +145,10 @@ body.dark-mode .post-card .timestamp {
 /* Post Card Actions (buttons) */
 .post-card .actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 12px;
-    margin-top: 15px;
+    margin-top: 10px;
+    flex-wrap: wrap; /* Ensure buttons stay within view on smaller screens */
 }
 
 .post-card button {
@@ -155,6 +156,8 @@ body.dark-mode .post-card .timestamp {
     border: none;
     color: #5c6bc0;
     cursor: pointer;
+    font-size: 16px;
+    padding: 10px;
 }
 
 body.dark-mode .post-card button {
@@ -352,6 +355,16 @@ body.dark-mode footer {
         padding: 18px;
     }
 
+    .post-card .actions {
+        justify-content: center; /* Center the like/dislike buttons on smaller screens */
+        gap: 20px;
+    }
+
+    .post-card button {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+
     .fab-btn {
         padding: 15px;
     }
@@ -360,3 +373,4 @@ body.dark-mode footer {
         font-size: 16px;
     }
 }
+
