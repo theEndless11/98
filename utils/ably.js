@@ -28,3 +28,15 @@ export function publishToAbly(event, data) {
         });
     });
 }
+
+/**
+ * Subscribe to an event on the Ably channel
+ * @param {string} event - The event name to subscribe to
+ * @param {Function} callback - The callback function to handle the event
+ */
+export function subscribeToAbly(event, callback) {
+    channel.subscribe(event, (message) => {
+        console.log(`Received event: ${event}`, message);
+        callback(message);
+    });
+}
