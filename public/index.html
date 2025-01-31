@@ -173,7 +173,38 @@ function toggleDarkMode() {
         <div id="posts" class="posts-feed">
             <!-- Existing posts will be loaded here -->
         </div>
-       
+       <div class="comments"></div>
+<button onclick="addComment('${post._id}')">Add Comment</button>
+<script>function addComment(postId) {
+    const commentText = prompt("Leave a comment:");
+    if (commentText) {
+        const comment = {
+            postId: postId,
+            message: commentText,
+            username: username,
+            timestamp: new Date(),
+        };
+        // Send comment to the server and update in real-time
+        channel.publish('newComment', comment);
+    }
+}
+
+// Display comments under posts
+function displayComments(postId, comments) {
+    const postCard = document.querySelector(`[data-id="${postId}"]`);
+    const commentSection = postCard.querySelector('.comments');
+    commentSection.innerHTML = '';
+    comments.forEach(comment => {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment';
+        commentDiv.innerHTML = `
+            <p><strong>${comment.username}</strong>: ${comment.message}</p>
+            <p class="timestamp">${new Date(comment.timestamp).toLocaleString()}</p>
+        `;
+        commentSection.appendChild(commentDiv);
+    });
+}
+</script>
         <footer>
             <p>Powered by Ably & MongoDB Atlas</p>
         </footer>
