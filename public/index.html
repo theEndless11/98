@@ -407,6 +407,7 @@ async function likePost(postId) {
     }
 }
 
+
   // Dislike a post
 async function dislikePost(postId) {
     try {
@@ -463,6 +464,36 @@ async function addComment(postId) {
             }
         } catch (error) {
             console.error('Error adding comment:', error);
+        }
+    }
+}
+// Function to update the post in the feed
+function updatePostInFeed(updatedPost) {
+    // Find the post card by its ID
+    const postCard = document.querySelector(`.post-card[data-id="${updatedPost._id}"]`);
+
+    if (postCard) {
+        // Update the likes, dislikes, and comments of the post
+        postCard.querySelector('.actions button:nth-child(1)').textContent = `👍 ${updatedPost.likes || 0}`;
+        postCard.querySelector('.actions button:nth-child(2)').textContent = `👎 ${updatedPost.dislikes || 0}`;
+        postCard.querySelector('.actions button:nth-child(3)').textContent = `💬 Comments (${updatedPost.comments ? updatedPost.comments.length : 0})`;
+
+        // Optionally, update the comments section if needed
+        const commentsList = postCard.querySelector('.comments-list');
+        if (commentsList && updatedPost.comments) {
+            // Clear the existing comments
+            commentsList.innerHTML = '';
+
+            // Add the updated comments
+            updatedPost.comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.innerHTML = `
+                    <p><strong>${comment.username}</strong>: ${comment.comment}</p>
+                    <p class="timestamp">${new Date(comment.timestamp).toLocaleString()}</p>
+                `;
+                commentsList.appendChild(commentElement);
+            });
         }
     }
 }
