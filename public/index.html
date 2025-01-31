@@ -7,507 +7,244 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-        <div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Emoji Button for Dark Mode -->
+    <div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Dark mode toggle button -->
     <div id="notification" class="notification">
-  <p id="notificationMessage"></p>
-</div>
-<script>function showNotification(message, isError = false) {
-    const notificationElement = document.getElementById('notification');
-    const messageElement = document.getElementById('notificationMessage');
-    
-    messageElement.textContent = message;
-
-    // Set the style for error or success
-    if (isError) {
-        notificationElement.classList.add('error-notification');
-    } else {
-        notificationElement.classList.remove('error-notification');
-    }
-
-    // Show the notification with animation
-    notificationElement.classList.add('show-notification');
-
-    // Hide after 3 seconds
-    setTimeout(() => {
-        notificationElement.classList.remove('show-notification');
-    }, 3000);
-}
-</script>
-<div class="floating-nav">
-    <!-- Floating Action Button (FAB) -->
-    <button class="fab-btn" id="fabBtn" aria-label="Open menu">+</button>
-
-    <!-- Menu items that will be shown when FAB is clicked -->
-    <div class="nav-options">
-        <button class="nav-option" id="termsBtn" aria-label="Terms and Conditions">📜 Terms</button>
-        <button class="nav-option" id="contactBtn" aria-label="Contact Information">📞 Contact</button>
-        <button class="nav-option" id="communityBtn" aria-label="Community Guidelines">📚 Guidelines</button>
+        <p id="notificationMessage"></p>
     </div>
 
-    <!-- Overlay for displaying content in the middle of the page -->
-    <div class="overlay hidden" id="overlay">
-        <div class="content-container">
-            <!-- Close button -->
-            <button class="close-btn" id="closeBtn" aria-label="Close">×</button>
-
-            <!-- Content for each section -->
-            <div id="termsContent" class="content">
-                <h3>Terms & Conditions</h3>
-                <p>Welcome to our platform! By using our service, you agree to the following terms and conditions:</p>
-                <ul>
-                    <li><strong>Eligibility:</strong> You must be at least 13 years old to use this platform.</li>
-                    <li><strong>Respectful Use:</strong> You agree to use this platform for lawful purposes only. Do not post or share content that violates any local, national, or international laws.</li>
-                    <li><strong>Privacy:</strong> We respect your privacy. Your personal information will not be shared with third parties unless necessary to comply with the law.</li>
-                    <li><strong>Content Ownership:</strong> You retain ownership of any content you post, but by posting, you grant us a license to use, modify, and distribute the content within the scope of the service.</li>
-                    <li><strong>Prohibited Content:</strong> Do not post any offensive, abusive, defamatory, or illegal content. Any content that promotes hate speech, violence, or harassment is strictly prohibited.</li>
-                    <li><strong>Account Termination:</strong> We reserve the right to suspend or terminate your account for violating any of the terms outlined in this agreement.</li>
-                    <li><strong>Changes to Terms:</strong> We may update these terms periodically. It is your responsibility to review them regularly. By continuing to use the platform, you agree to the updated terms.</li>
-                </ul>
-                <p>If you have any questions regarding these terms, please contact us at the provided contact information.</p>
-            </div>
-
-            <div id="contactContent" class="content hidden">
-                <h3>Contact Info</h3>
-                <p>For support, inquiries, or any questions, please feel free to reach out to us:</p>
-                <p><strong>Email:</strong> name86473@gmail.com</p>
-                <p><strong>Phone:</strong> +1 123-456-7890</p>
-                <p><strong>Address:</strong> 1234 Platform Lane, Tech City, TX 12345</p>
-                <p>If you're having technical issues or need further assistance, don't hesitate to get in touch with our support team.</p>
-            </div>
-
-            <div id="communityContent" class="content hidden">
-                <h3>Community Guidelines</h3>
-                <p>We want to foster a positive, inclusive, and respectful community on our platform. To help maintain a safe space for everyone, please adhere to the following guidelines:</p>
-                <ul>
-                    <li><strong>Respect Others:</strong> Treat all members of the community with respect. Engage in discussions with kindness and empathy.</li>
-                    <li><strong>Constructive Feedback:</strong> Share your opinions and thoughts constructively. If you disagree with someone, express your opinion in a way that encourages healthy discussion.</li>
-                    <li><strong>No Hate Speech or Bullying:</strong> Discrimination, hate speech, bullying, and harassment will not be tolerated. We aim to create an environment where everyone feels safe.</li>
-                    <li><strong>Stay on Topic:</strong> Keep your posts relevant to the purpose of the platform. Avoid spamming or irrelevant content.</li>
-                    <li><strong>Report Violations:</strong> If you encounter any content that violates these guidelines or our terms, please report it immediately. We take reports seriously and investigate them promptly.</li>
-                    <li><strong>Privacy:</strong> Respect others' privacy. Do not share personal information about other users without their consent.</li>
-                </ul>
-                <p>By following these guidelines, you help ensure that everyone has a positive experience. We thank you for your cooperation!</p>
+    <div class="floating-nav">
+        <button class="fab-btn" id="fabBtn" aria-label="Open menu">+</button>
+        <div class="nav-options">
+            <button class="nav-option" id="termsBtn" aria-label="Terms and Conditions">📜 Terms</button>
+            <button class="nav-option" id="contactBtn" aria-label="Contact Information">📞 Contact</button>
+            <button class="nav-option" id="communityBtn" aria-label="Community Guidelines">📚 Guidelines</button>
+        </div>
+        <div class="overlay hidden" id="overlay">
+            <div class="content-container">
+                <button class="close-btn" id="closeBtn" aria-label="Close">×</button>
+                <div id="termsContent" class="content">
+                    <h3>Terms & Conditions</h3>
+                    <p>Welcome to our platform! By using our service, you agree to the following terms...</p>
+                </div>
+                <div id="contactContent" class="content hidden">
+                    <h3>Contact Info</h3>
+                    <p><strong>Email:</strong> name86473@gmail.com</p>
+                    <p><strong>Phone:</strong> +1 123-456-7890</p>
+                </div>
+                <div id="communityContent" class="content hidden">
+                    <h3>Community Guidelines</h3>
+                    <ul>
+                        <li><strong>Respect Others:</strong> Be kind and respectful.</li>
+                        <li><strong>Constructive Feedback:</strong> Engage thoughtfully.</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<script>
-    // Function to toggle between light and dark mode
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    const modeIcon = document.querySelector('.mode-toggle');
 
-    // Switch emoji based on the current mode
-    if (document.body.classList.contains('dark-mode')) {
-        modeIcon.textContent = '🌞'; // Sun for light mode
-    } else {
-        modeIcon.textContent = '🌙'; // Moon for dark mode
-    }
-}
-
-    document.getElementById('fabBtn').addEventListener('click', function (event) {
-        event.stopPropagation();
-        const navOptions = document.querySelector('.nav-options');
-        navOptions.classList.toggle('visible');
-    });
-    
-    function showContent(contentId) {
-        const overlay = document.getElementById('overlay');
-        const allContent = document.querySelectorAll('.content');
-        
-        // Hide all content sections
-        allContent.forEach(content => {
-            content.classList.remove('visible');
-            content.classList.add('hidden');
-        });
-    
-        // Show the selected content
-        const contentToShow = document.getElementById(contentId);
-        if (contentToShow) {
-            contentToShow.classList.remove('hidden');
-            contentToShow.classList.add('visible');
-            overlay.classList.add('visible'); // Show the overlay
-        }
-    
-        // Close the menu options
-        const navOptions = document.querySelector('.nav-options');
-        navOptions.classList.remove('visible');
-    }
-    
-    // Event listeners for buttons to show content
-    document.getElementById('termsBtn').addEventListener('click', function () {
-        showContent('termsContent');
-    });
-    
-    document.getElementById('contactBtn').addEventListener('click', function () {
-        showContent('contactContent');
-    });
-    
-    document.getElementById('communityBtn').addEventListener('click', function () {
-        showContent('communityContent');
-    });
-    
-    // Close the overlay when the close button is clicked
-    document.getElementById('closeBtn').addEventListener('click', function () {
-        const overlay = document.getElementById('overlay');
-        overlay.classList.remove('visible');
-    });
-    
-    // Prevent hiding the overlay when clicking inside the content container
-    document.getElementById('overlay').addEventListener('click', function(event) {
-        const contentContainer = document.querySelector('.content-container');
-        if (!contentContainer.contains(event.target)) {
-            overlay.classList.remove('visible');
-        }
-    });
-    
-</script>
     <div class="container">
         <h1>Share Your Opinion Anonymously</h1>
 
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <img id="avatar" src="default-avatar.png" alt="Avatar" />
+            <input type="file" id="avatarUpload" accept="image/*" onchange="updateAvatar()" />
+            <textarea id="description" placeholder="Write a short bio..." oninput="updateDescription()"></textarea>
+        </div>
+
+        <!-- Post & Poll Creation -->
         <div class="form-container">
             <textarea id="postText" placeholder="What’s on your mind?" rows="4"></textarea>
             <button id="submitBtn">Post Opinion</button>
+            <!-- Poll Form -->
+            <div id="pollForm" class="poll-form">
+                <input type="text" id="pollQuestion" placeholder="Enter poll question" />
+                <input type="text" id="pollOption1" placeholder="Option 1" />
+                <input type="text" id="pollOption2" placeholder="Option 2" />
+                <button onclick="createPoll()">Create Poll</button>
+            </div>
         </div>
 
-        <div id="posts" class="posts-feed">
-            <!-- Existing posts will be loaded here -->
-        </div>
-       
+        <!-- Post Feed -->
+        <div id="posts" class="posts-feed"></div>
+
         <footer>
             <p>Powered by Ably & MongoDB Atlas</p>
         </footer>
     </div>
-    
+
     <script src="https://cdn.ably.io/lib/ably.min.js"></script>
+    <script>
+        const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34');
+        const channel = ably.channels.get('opinions');
+
+        let reputation = parseInt(localStorage.getItem('reputation')) || 0;
+        const username = localStorage.getItem('username') || generateUsername();
+        const sessionId = sessionStorage.getItem('sessionId') || generateSessionId();
+
+        // Display initial reputation and username
+        document.getElementById('reputation').innerText = `Reputation: ${reputation}`;
+        localStorage.setItem('username', username); // Store username
+
+        // Handle post submission
+        document.getElementById('submitBtn').addEventListener('click', postOpinion);
+
+        // Handle poll creation
+        function createPoll() {
+            const question = document.getElementById('pollQuestion').value.trim();
+            const option1 = document.getElementById('pollOption1').value.trim();
+            const option2 = document.getElementById('pollOption2').value.trim();
+
+            if (question && option1 && option2) {
+                const pollData = {
+                    username,
+                    question,
+                    options: [option1, option2],
+                    votes: [0, 0],
+                    sessionId,
+                };
+
+                channel.publish('newPoll', pollData);
+                showNotification('Poll created successfully!', false);
+                document.getElementById('pollForm').reset();
+            } else {
+                showNotification('Please fill out all fields for the poll.', true);
+            }
+        }
+
+        // Handle post submission
+        async function postOpinion() {
+            const postText = document.getElementById('postText').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (postText) {
+                submitBtn.classList.add('button-clicked');
+                try {
+                    const postData = { message: postText, username, sessionId };
+                    const response = await fetch('/api/postOpinion', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(postData),
+                    });
+
+                    if (response.ok) {
+                        const newPost = await response.json();
+                        addPostToFeed(newPost);
+                        increaseReputation(10); // Increase reputation for posting
+                    }
+                } catch (error) {
+                    console.error('Error posting opinion:', error);
+                    showNotification('Error submitting post: ' + error.message, true);
+                } finally {
+                    setTimeout(() => submitBtn.classList.remove('button-clicked'), 200);
+                }
+            }
+        }
+
+        // Handle comments and increase reputation for commenting
+        function addComment(postId, commentText) {
+            const commentData = { postId, username, commentText, sessionId };
+            channel.publish('newComment', commentData);
+            increaseReputation(5); // Increase reputation for commenting
+        }
+
+        // Increase reputation by specified amount
+        function increaseReputation(points) {
+            reputation += points;
+            localStorage.setItem('reputation', reputation);
+            document.getElementById('reputation').innerText = `Reputation: ${reputation}`;
+        }
+
+        // Update profile avatar
+        function updateAvatar() {
+            const avatarFile = document.getElementById('avatarUpload').files[0];
+            if (avatarFile) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    document.getElementById('avatar').src = reader.result;
+                    localStorage.setItem('avatar', reader.result); // Save avatar to localStorage
+                };
+                reader.readAsDataURL(avatarFile);
+            }
+        }
+
+        // Update profile description
+        function updateDescription() {
+            const description = document.getElementById('description').value;
+            localStorage.setItem('description', description); // Save description to localStorage
+        }
+
+        // Fetch posts and comments from backend (real-time updates will be done via Ably)
+        window.onload = async () => {
+            try {
+                const posts = await fetchPosts();
+                posts.forEach(post => addPostToFeed(post));
+            } catch (error) {
+                console.error("Error loading posts: ", error);
+            }
+        };
+
+        // Fetch posts from the backend
+        async function fetchPosts() {
+            try {
+                const response = await fetch('/api/posts');
+                if (!response.ok) throw new Error('Failed to load posts');
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                return [];
+            }
+        }
+
+        // Add a post to the feed
+        function addPostToFeed(post) {
+            const postFeed = document.getElementById('posts');
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+            postCard.setAttribute('data-id', post._id);
+
+            postCard.innerHTML = `
+                <p><strong>${post.username}</strong>: ${post.message}</p>
+                <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+                <button onclick="addComment('${post._id}', prompt('Add a comment:'))">Add Comment</button>
+                <div id="comments-${post._id}">
+                    ${post.comments.map(comment => `<p>${comment.username}: ${comment.message}</p>`).join('')}
+                </div>
+            `;
+
+            postFeed.appendChild(postCard);
+        }
+
+        // Handle real-time updates
+        channel.subscribe('newOpinion', function (message) {
+            addPostToFeed(message.data);
+        });
+
+        channel.subscribe('newComment', function (message) {
+            const postCard = document.querySelector(`[data-id='${message.data.postId}']`);
+            const commentsDiv = postCard.querySelector(`#comments-${message.data.postId}`);
+            commentsDiv.innerHTML += `<p><strong>${message.data.username}</strong>: ${message.data.commentText}</p>`;
+        });
+
+        // Generate a unique session ID
+        function generateSessionId() {
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
+
+        // Generate a unique 4-word username
+        function generateUsername() {
+            const words = ["Sun", "Moon", "Star", "Sky", "Ocean", "Forest", "Mountain", "Cloud", "River", "Desert", "Lake", "Earth"];
+            const randomWords = [];
+            for (let i = 0; i < 4; i++) {
+                const randomIndex = Math.floor(Math.random() * words.length);
+                randomWords.push(words[randomIndex]);
+            }
+            return randomWords.join("");
+        }
+    </script>
 </body>
 </html>
 
- <script>
-    const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Your Ably API key
-    const channel = ably.channels.get('opinions');
-
-    // Generate a unique session ID if it doesn't exist in sessionStorage
-    if (!sessionStorage.getItem('sessionId')) {
-        sessionStorage.setItem('sessionId', generateSessionId());
-    }
-
-    // Generate a unique 4-word username for the user
-    let username = localStorage.getItem('username');
-    if (!username) {
-        username = generateUsername();
-        localStorage.setItem('username', username);  // Save it in localStorage for "remember me"
-    }
-
-    // Button event to post a new opinion
-    document.getElementById('submitBtn').addEventListener('click', postOpinion);
-
-    // Fetch past messages when the page loads
-    window.onload = async () => {
-        try {
-            const posts = await fetchPosts();  // Fetch previous posts
-            if (posts && posts.length > 0) {
-                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
-            } else {
-                console.log("No previous posts found.");
-            }
-        } catch (error) {
-            console.error("Error loading posts: ", error);
-        }
-    }
-
-    // Function to fetch posts from the backend
-    async function fetchPosts() {
-        try {
-            const response = await fetch('/api/posts');  // Ensure this path matches your backend
-            if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
-            const posts = await response.json();
-            return posts;
-        } catch (error) {
-            console.error('Error fetching posts:', error);  // Log any errors
-            return [];  // Return an empty array if there was an error
-        }
-    }
-
-    // Button event to post a new opinion
-document.getElementById('submitBtn').addEventListener('click', postOpinion);
-
-async function postOpinion() {
-    const postText = document.getElementById('postText').value.trim();
-    const submitBtn = document.getElementById('submitBtn');  // Reference to the button
-
-    if (postText !== '') {
-        const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
-        const postData = { message: postText, username: username, sessionId };  // Include username and session ID
-        
-        // Add the animation class to the button to show a "pop" effect
-        submitBtn.classList.add('button-clicked');
-        
-        try {
-            const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData),
-            });
-
-            if (response.ok) {
-                const newPost = await response.json();
-                addPostToFeed(newPost, true);  // Add the new post immediately to the feed
-
-                document.getElementById('postText').value = ''; // Clear input
-                
-                // Show success notification
-                showNotification('Post submitted successfully!', false);
-
-                // Publish the new post to Ably to notify all users
-                channel.publish('newOpinion', newPost);  // Real-time update
-            }
-        } catch (error) {
-            console.error('Error posting opinion:', error);
-            showNotification('Error submitting post: ' + error.message, true);  // Error notification
-        } finally {
-            // Remove the button animation after 0.2s to reset it
-            setTimeout(() => {
-                submitBtn.classList.remove('button-clicked');
-            }, 200);  // Matches the CSS transition time
-        }
-    }
-}
-
-
-
-// Function to show notification messages (for success or error)
-function showNotification(message, isError = false) {
-    const notificationElement = document.getElementById('notification');
-    const messageElement = document.getElementById('notificationMessage');
-    
-    messageElement.textContent = message;
-
-    // Set the style for error or success
-    if (isError) {
-        notificationElement.classList.add('error-notification');
-    } else {
-        notificationElement.classList.remove('error-notification');
-    }
-
-    // Show the notification with animation
-    notificationElement.classList.add('show-notification');
-
-    // Hide after 3 seconds
-    setTimeout(() => {
-        notificationElement.classList.remove('show-notification');
-    }, 3000);
-}
-async function postOpinion() {
-    const postText = document.getElementById('postText').value.trim();
-    const submitBtn = document.getElementById('submitBtn');  // Reference to the button
-
-    if (postText !== '') {
-        const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
-        const postData = { message: postText, username: username, sessionId };  // Include username and session ID
-        
-        // Add the animation class to the button to show a "pop" effect
-        submitBtn.classList.add('button-clicked');
-        
-        try {
-            const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData),
-            });
-
-            if (response.ok) {
-                const newPost = await response.json();
-                
-                // Immediately add the new post to the feed at the top
-                addPostToFeed(newPost, true);  // 'true' ensures it's added at the top
-                
-                document.getElementById('postText').value = ''; // Clear input
-                
-                // Show success notification
-                showNotification('Post submitted successfully!', false);
-
-                // Publish the new post to Ably to notify all users
-                channel.publish('newOpinion', newPost);
-            }
-        } catch (error) {
-            console.error('Error posting opinion:', error);
-            showNotification('Error submitting post: ' + error.message, true);  // Error notification
-        } finally {
-            // Remove the button animation after 0.2s to reset it
-            setTimeout(() => {
-                submitBtn.classList.remove('button-clicked');
-            }, 200);  // Matches the CSS transition time
-        }
-    }
-}
-     // Real-time updates from Ably
-channel.subscribe('newOpinion', function (message) {
-    addPostToFeed(message.data, false);  // Add new opinion in real-time
-});
-
-// Function to add a post to the feed (when posts are fetched or added)
-function addPostToFeed(post, isNewPost = false) {
-    const postFeed = document.getElementById('posts');
-    const postCard = document.createElement('div');
-    postCard.className = 'post-card';
-    postCard.setAttribute('data-id', post._id); // Store the post ID in the card
-
-    postCard.innerHTML = `
-        <p><strong>${post.username}</strong>: ${post.message}</p>
-        <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
-        <div class="actions">
-            <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
-            <button onclick="deletePost('${post._id}')">Delete</button>
-        </div>
-    `;
-
-    // Prepend new post to the feed so it appears at the top
-    if (isNewPost) {
-        postFeed.prepend(postCard);
-    } else {
-        postFeed.appendChild(postCard);  // Append normally for real-time updates
-    }
-}
-
-     
-    channel.subscribe('editOpinion', function (message) {
-        updatePostInFeed(message.data);  // Handle post edit in real-time
-    });
-
-    channel.subscribe('deleteOpinion', function (message) {
-        removePostFromFeed(message.data.id);  // Remove deleted post in real-time
-    });
-
-    // Edit post functionality
-    function editPost(postId, postUsername) {
-        const currentUsername = username;
-
-        if (postUsername !== currentUsername) {
-            alert("You can only edit your own posts.");
-            return;
-        }
-
-        const postText = prompt('Edit your opinion:');
-        if (postText) {
-            const updatedPost = { id: postId, message: postText, timestamp: new Date(), username: currentUsername };
-            // Send the edited post to Ably and MongoDB
-            channel.publish('editOpinion', updatedPost);
-
-            // Update the UI for immediate feedback
-            updatePostInFeed(updatedPost);
-        }
-    }
-
-async function deletePost(postId) {
-    const currentUsername = username;
-    const sessionId = sessionStorage.getItem('sessionId');
-
-    console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
-
-    const confirmation = confirm("Are you sure you want to delete this post?");
-
-    if (confirmation) {
-        try {
-            const response = await fetch(`/api/deletePost`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    postId: postId,
-                    username: currentUsername,
-                    sessionId: sessionId
-                }),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Failed to delete post');
-            }
-
-            console.log('Post deleted:', result);
-
-            // Show success notification
-            showNotification('Post deleted successfully!', false);
-
-            channel.publish('deleteOpinion', { id: postId });
-            removePostFromFeed(postId);
-        } catch (error) {
-            console.error('Error deleting post:', error.message);
-            // Show error notification
-            showNotification('Error deleting post: ' + error.message, true);
-        }
-    }
-}
-
-    // Remove post from feed after deletion
-    function removePostFromFeed(postId) {
-        const postCards = document.querySelectorAll('.post-card');
-        postCards.forEach(card => {
-            const cardId = card.getAttribute('data-id');
-            if (cardId === postId) {
-                card.remove();
-            }
-        });
-    }
-
-  function editPost(postId, postUsername) {
-    const currentUsername = username;
-
-    if (postUsername !== currentUsername) {
-        showNotification("You can only edit your own posts.", true);
-        return;
-    }
-
-    const postText = prompt('Edit your opinion:');
-    if (postText) {
-        const updatedPost = { id: postId, message: postText, timestamp: new Date(), username: currentUsername };
-        channel.publish('editOpinion', updatedPost);
-        updatePostInFeed(updatedPost);
-
-        // Show success notification
-        showNotification('Post updated successfully!', false);
-    }
-}
-
-
-    // Function to add a post to the feed (when posts are fetched or added)
-    function addPostToFeed(post) {
-        const postFeed = document.getElementById('posts');
-        const postCard = document.createElement('div');
-        postCard.className = 'post-card';
-        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
-
-        postCard.innerHTML = `
-            <p><strong>${post.username}</strong>: ${post.message}</p>
-            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
-            <div class="actions">
-                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
-                <button onclick="deletePost('${post._id}')">Delete</button>
-            </div>
-        `;
-
-        postFeed.appendChild(postCard);  // Add the new post card to the feed
-    }
-
-    // Helper function to generate a unique session ID
-    function generateSessionId() {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    }
-
-    // Helper function to generate a 4-word username
-    function generateUsername() {
-        const words = ["Sun", "Moon", "Star", "Sky", "Ocean", "Forest", "Mountain", "Cloud", "River", "Desert", "Lake", "Earth"];
-        const randomWords = [];
-        for (let i = 0; i < 4; i++) {
-            const randomIndex = Math.floor(Math.random() * words.length);
-            randomWords.push(words[randomIndex]);
-        }
-        return randomWords.join("");
-    }
-</script>
 
 
 
