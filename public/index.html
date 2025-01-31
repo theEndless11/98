@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <script src="script.js"></script>
+
         <div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Emoji Button for Dark Mode -->
     <div id="notification" class="notification">
   <p id="notificationMessage"></p>
@@ -94,6 +94,17 @@
  <script>
     const ably = new Ably.Realtime('z-PJnQ.-j8d2A:2MPSxeZ_Vfj487pTV11np4OE5yDTAZiln1a5IXWNj34'); // Your Ably API key
     const channel = ably.channels.get('opinions');
+      // Generate a unique session ID if it doesn't exist in sessionStorage
+    if (!sessionStorage.getItem('sessionId')) {
+        sessionStorage.setItem('sessionId', generateSessionId());
+    }
+
+    // Generate a unique 4-word username for the user
+    let username = localStorage.getItem('username');
+    if (!username) {
+        username = generateUsername();
+        localStorage.setItem('username', username);  // Save it in localStorage for "remember me"
+    }
     
     // Button event to post a new opinion
     document.getElementById('submitBtn').addEventListener('click', postOpinion);
@@ -467,7 +478,27 @@ function updatePostInFeed(updatedPost) {
             if (cardId === postId) {
                 card.remove();
             }
-        });
+        }); 
+        }
+    
+        // Edit post functionality
+    function editPost(postId, postUsername) {
+        const currentUsername = username;
+
+        if (postUsername !== currentUsername) {
+            showNotification("You can only edit your own posts.", true);
+            return;
+        }
+
+        const postText = prompt('Edit your opinion:');
+        if (postText) {
+            const updatedPost = { id: postId, message: postText, timestamp: new Date(), username: currentUsername };
+            channel.publish('editOpinion', updatedPost);
+            updatePostInFeed(updatedPost);
+
+            // Show success notification
+            showNotification('Post updated successfully!', false);
+        }
     }
 </script>
 
