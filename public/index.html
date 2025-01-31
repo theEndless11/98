@@ -197,22 +197,22 @@ function toggleDarkMode() {
         localStorage.setItem('username', username);  // Save it in localStorage for "remember me"
     }
 
-    // Button event to post a new opinion
-    document.getElementById('submitBtn').addEventListener('click', postOpinion);
+  // Button event to post a new opinion
+document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
-    // Fetch past messages when the page loads
-    window.onload = async () => {
-        try {
-            const posts = await fetchPosts();  // Fetch previous posts
-            if (posts && posts.length > 0) {
-                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
-            } else {
-                console.log("No previous posts found.");
-            }
-        } catch (error) {
-            console.error("Error loading posts: ", error);
+// Fetch past messages when the page loads
+window.onload = async () => {
+    try {
+        const posts = await fetchPosts();  // Fetch previous posts
+        if (posts && posts.length > 0) {
+            posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+        } else {
+            console.log("No previous posts found.");
         }
+    } catch (error) {
+        console.error("Error loading posts: ", error);
     }
+};
 
     // Function to fetch posts from the backend
     async function fetchPosts() {
@@ -294,32 +294,30 @@ function toggleDarkMode() {
             notificationElement.classList.remove('show-notification');
         }, 3000);
     }
+// Real-time updates from Ably
+channel.subscribe('newOpinion', function (message) {
+    addPostToFeed(message.data, false);  // Add new opinion in real-time
+});
 
-    // Real-time updates from Ably
-    channel.subscribe('newOpinion', function (message) {
-        addPostToFeed(message.data, false);  // Add new opinion in real-time
-    });
+channel.subscribe('editOpinion', function (message) {
+    updatePostInFeed(message.data);  // Handle post edit in real-time
+});
 
-    channel.subscribe('editOpinion', function (message) {
-        updatePostInFeed(message.data);  // Handle post edit in real-time
-    });
+channel.subscribe('deleteOpinion', function (message) {
+    removePostFromFeed(message.data.id);  // Remove deleted post in real-time
+});
 
-    channel.subscribe('deleteOpinion', function (message) {
-        removePostFromFeed(message.data.id);  // Remove deleted post in real-time
-    });
+channel.subscribe('likePost', function (message) {
+    updatePostInFeed(message.data);  // Handle like updates in real-time
+});
 
-    channel.subscribe('likePost', function (message) {
-        updatePostInFeed(message.data);  // Handle like updates in real-time
-    });
+channel.subscribe('dislikePost', function (message) {
+    updatePostInFeed(message.data);  // Handle dislike updates in real-time
+});
 
-    channel.subscribe('dislikePost', function (message) {
-        updatePostInFeed(message.data);  // Handle dislike updates in real-time
-    });
-
-    channel.subscribe('addComment', function (message) {
-        updatePostInFeed(message.data);  // Handle new comments in real-time
-    });
-
+channel.subscribe('addComment', function (message) {
+    updatePostInFeed(message.data);  // Handle new comments in real-time
+});
     // Function to add a post to the feed (when posts are fetched or added)
     function addPostToFeed(post, isNewPost = false) {
         const postFeed = document.getElementById('posts');
