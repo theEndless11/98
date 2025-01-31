@@ -33,6 +33,11 @@ export default async function handler(req, res) {
 
             // Handle the "like" action
             if (action === 'like') {
+                // Check if the user has already disliked this post
+                if (post.dislikedBy.includes(username)) {
+                    return res.status(400).json({ message: 'You cannot like a post you have disliked' });
+                }
+
                 // Check if the user has already liked this post
                 if (post.likedBy.includes(username)) {
                     return res.status(400).json({ message: 'You have already liked this post' });
@@ -43,6 +48,11 @@ export default async function handler(req, res) {
 
             // Handle the "dislike" action
             } else if (action === 'dislike') {
+                // Check if the user has already liked this post
+                if (post.likedBy.includes(username)) {
+                    return res.status(400).json({ message: 'You cannot dislike a post you have liked' });
+                }
+
                 // Check if the user has already disliked this post
                 if (post.dislikedBy.includes(username)) {
                     return res.status(400).json({ message: 'You have already disliked this post' });
