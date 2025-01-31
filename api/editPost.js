@@ -1,50 +1,123 @@
-import { connectToDatabase } from './utils/db';
 import mongoose from 'mongoose';
-import { publishToAbly } from './utils/ably';
+import { connectToDatabase } from '../../utils/db'; // Your connection utility
 
+// Define the schema for the post
 const postSchema = new mongoose.Schema({
     message: String,
     timestamp: Date,
     username: String,
     sessionId: String,
+    likes: { type: Number, default: 0 },
+    dislikes: { type: Number, default: 0 },
+    comments: [{ username: String, comment: String }],
 });
+
+// Create the model for posts
 const Post = mongoose.model('Post', postSchema);
 
+// Serverless API handler for handling different request types
 export default async function handler(req, res) {
-    if (req.method === 'PUT') {
-        const { id } = req.query; // Get the post ID from the URL
-        const { message, username, sessionId } = req.body;
+    await connectToDatabase(); // Ensure you're connected to the database
 
-        if (!message || message.trim() === '') {
-            return res.status(400).json({ message: 'Message cannot be empty' });
-        }
+    const { postId } = req.query;
 
-        try {
-            await connectToDatabase();
-            const post = await Post.findById(id);
-
-            if (!post) {
-                return res.status(404).json({ message: 'Post not found' });
+    switch (req.method) {
+        case 'POST':
+            if (req.url.includes('/likePost')) {
+                return likePost(req, res, postId);
+            } else if (req.url.includes('/dislikePost')) {
+                return dislikePost(req, res, postId);
+            } else if (req.url.includes('/addComment')) {
+                return addComment(req, res, postId);
             }
+            break;
 
-            // Ensure the user is allowed to edit this post (check username and sessionId)
-            if (post.username !== username || post.sessionId !== sessionId) {
-                return res.status(403).json({ message: 'You can only edit your own posts' });
-            }
+        case 'DELETE':
+            return deletePost(req, res, postId);
 
-            // Update the post
-            post.message = message;
-            post.timestamp = new Date();
-            await post.save();
-
-            // Publish the edited post to Ably
-            await publishToAbly('editOpinion', post);
-
-            res.status(200).json(post);
-        } catch (error) {
-            res.status(500).json({ message: 'Error updating post', error });
-        }
-    } else {
-        res.status(405).json({ message: 'Method Not Allowed' });
+        default:
+            res.status(405).json({ message: 'Method Not Allowed' });
+            break;
     }
 }
+
+// Like a post
+const likePost = async (req, res, postId) => {
+    const { username } = req.body;
+
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+        post.likes += 1;
+        await post.save();
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({ message: 'Error liking post' });
+    }
+};
+
+// Dislike a post
+const dislikePost = async (req, res, postId) => {
+    const { username } = req.body;
+
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+        post.dislikes += 1;
+        await post.save();
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({ message: 'Error disliking post' });
+    }
+};
+
+// Add a comment to a post
+const addComment = async (req, res, postId) => {
+    const { username, comment } = req.body;
+
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+        post.comments.push({ username, comment });
+        await post.save();
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({ message: 'Error adding comment' });
+    }
+};
+
+// Delete a post
+const deletePost = async (req, res, postId) => {
+    const { username, sessionId } = req.body;
+
+    try {
+        // Check that the required fields are present
+        if (!username || !sessionId) {
+            return res.status(400).json({ message: 'Missing required fields: username, sessionId' });
+        }
+
+        // Find the post to delete
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        // Ensure the post belongs to the user making the request
+        if (post.username !== username) {
+            return res.status(403).json({ message: 'You can only delete your own posts' });
+        }
+
+        // Delete the post from the database
+        await post.deleteOne();
+        res.status(200).json({ message: 'Post deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error deleting post', error });
+    }
+};
