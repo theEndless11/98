@@ -16,14 +16,15 @@ const postSchema = new mongoose.Schema({
 const Post = mongoose.model('Post', postSchema);
 
 export default async function handler(req, res) {
-    const { postId } = req.query;  // Vercel automatically parses dynamic params here
-    const { username, action, comment } = req.body;
+    const { postId, username, action, comment } = req.body;  // Extract postId from body
 
     await connectToDatabase(); // Ensure you're connected to the DB
 
     if (req.method === 'POST') {
         try {
+            // Find the post by postId
             const post = await Post.findById(postId);
+
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
@@ -42,6 +43,7 @@ export default async function handler(req, res) {
                 return res.status(400).json({ message: 'Invalid action type' });
             }
 
+            // Save the updated post
             await post.save();
             res.json(post);
         } catch (error) {
