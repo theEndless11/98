@@ -690,6 +690,15 @@ const loadMorePosts = () => {
   }, 1000); // Simulating network delay of 1 second
 };
 
+// Cache posts in localStorage for faster load
+const loadCachedPosts = () => {
+  const cachedPosts = JSON.parse(localStorage.getItem('cachedPosts'));
+  if (cachedPosts) {
+    renderPosts(cachedPosts);
+  } else {
+    loadMorePosts(); // If no cache, load from the server
+  }
+};
 
 // When posts are fetched from the server, cache them
 const savePostsToCache = (posts) => {
@@ -713,5 +722,6 @@ loadMorePosts = async () => {
     isLoading = false;
   }
 };
+
 
 </script>
