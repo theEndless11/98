@@ -639,4 +639,111 @@ async function confirmDelete(postId) {
         }
         return randomWords.join("");
     }
+    // JavaScript for Infinite Scroll
+
+let page = 1; // Initial page
+let isLoading = false; // Prevent multiple calls while already loading
+
+const postsContainer = document.querySelector('.posts-feed');
+
+// Function to load more posts
+const loadMorePosts = async () => {
+  if (isLoading) return;
+  isLoading = true;
+
+  try {
+    const response = await fetch(`/api/posts?page=${page}`); // Backend API for posts
+    const posts = await response.json();
+    renderPosts(posts);
+    page += 1; // Increment page number for next load
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  } finally {
+    isLoading = false;
+  }
+};
+
+// Function to render posts
+const renderPosts = (posts) => {
+  posts.forEach((post) => {
+    const postElement = document.createElement('div');
+    postElement.classList.add('post-card');
+    postElement.innerHTML = `
+      <p>${post.content}</p>
+      <div class="timestamp">${new Date(post.timestamp).toLocaleString()}</div>
+      <div class="actions">
+        <!-- Actions here (like, dislike, comment) -->
+      </div>
+    `;
+    postsContainer.appendChild(postElement);
+  });
+};
+
+// Setting up the intersection observer to detect scroll to the bottom
+const observer = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    loadMorePosts();
+  }
+}, {
+  rootMargin: '100px', // Trigger before reaching the bottom
+});
+
+observer.observe(document.querySelector('#load-more-trigger')); // Element at the bottom to trigger the load
+// Cache posts in localStorage for faster load
+const loadCachedPosts = () => {
+  const cachedPosts = JSON.parse(localStorage.getItem('cachedPosts'));
+  if (cachedPosts) {
+    renderPosts(cachedPosts);
+  } else {
+    loadMorePosts(); // If no cache, load from the server
+  }
+};
+
+// When posts are fetched from the server, cache them
+const savePostsToCache = (posts) => {
+  localStorage.setItem('cachedPosts', JSON.stringify(posts));
+};
+
+// Example of how you could cache posts
+loadMorePosts = async () => {
+  if (isLoading) return;
+  isLoading = true;
+
+  try {
+    const response = await fetch(`/api/posts?page=${page}`);
+    const posts = await response.json();
+    renderPosts(posts);
+    savePostsToCache(posts); // Cache the posts
+    page += 1;
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  } finally {
+    isLoading = false;
+  }
+};
+// Example of tracking views in localStorage
+const updatePostViewCount = (postId) => {
+  const views = JSON.parse(localStorage.getItem('postViews')) || {};
+
+  if (!views[postId]) {
+    views[postId] = 0;
+  }
+
+  views[postId] += 1; // Increment view count for the post
+
+  localStorage.setItem('postViews', JSON.stringify(views));
+
+  // Optionally, send to the server
+  fetch(`/api/posts/${postId}/view`, {
+    method: 'POST',
+    body: JSON.stringify({ views: views[postId] }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
+// Call this function when a post is viewed
+updatePostViewCount(postId);
+
 </script>
