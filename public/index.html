@@ -327,7 +327,7 @@ channel.subscribe('addComment', function (message) {
 function addPostToFeed(post, isNewPost = false) {
     const postFeed = document.getElementById('posts');
     if (!postFeed) {
-        return;
+        return;  // Exit early if the post feed doesn't exist
     }
 
     const postCard = document.createElement('div');
@@ -344,33 +344,20 @@ function addPostToFeed(post, isNewPost = false) {
             <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
             <button onclick="deletePost('${post._id}')">Delete</button>
         </div>
-          <div id="comments-${post._id}" class="comments-section" style="display: none;">
-                <div class="comments-list"></div>
-                <input type="text" id="commentInput-${post._id}" placeholder="Add a comment...">
-                <button onclick="addComment('${post._id}')">Post Comment</button>
-            </div>
+        <div id="comments-${post._id}" class="comments-section" style="display: none;">
+            <div class="comments-list"></div>
+            <input type="text" id="commentInput-${post._id}" placeholder="Add a comment...">
+            <button onclick="addComment('${post._id}')">Post Comment</button>
+        </div>
     `;
-    
-    // Add comments if they exist
-    if (post.comments && post.comments.length > 0) {
-        const commentsList = postCard.querySelector(`#comments-${post._id} .comments-list`);
-        post.comments.forEach(comment => {
-            commentsList.innerHTML += `
-                <div class="comment">
-                    <p><strong>${comment.username}</strong>: ${comment.comment}</p>
-                    <p class="timestamp">${new Date(comment.timestamp).toLocaleString()}</p>
-                </div>
-            `;
-        });
-    }
 
-    // If it's a new post, prepend it; otherwise, append it
     if (isNewPost) {
-        postFeed.prepend(postCard);
+        postFeed.prepend(postCard); // Add new post at the top
     } else {
-        postFeed.appendChild(postCard);
+        postFeed.appendChild(postCard); // Append normally for other posts
     }
 }
+
 // Function to like a post
 async function likePost(postId) {
     const currentUsername = username;
