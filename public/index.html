@@ -350,8 +350,8 @@ function addPostToFeed(post, isNewPost = false) {
     
     // Add the post to the feed
     postFeed.insertBefore(postCard, postFeed.firstChild); // Insert at the top, or use appendChild for bottom.
-}
-        // Add comments if they exist
+
+      // Add comments if they exist
         if (post.comments && post.comments.length > 0) {
             const commentsList = postCard.querySelector(`#comments-${post._id} .comments-list`);
             post.comments.forEach(comment => {
@@ -364,6 +364,8 @@ function addPostToFeed(post, isNewPost = false) {
             });
         }
 
+}
+      
         // Prepend new post to the feed so it appears at the top
         if (isNewPost) {
             postFeed.prepend(postCard);
@@ -372,7 +374,6 @@ function addPostToFeed(post, isNewPost = false) {
         }
     }
 
-    // Like a post
 // Function to like a post
 async function likePost(postId) {
     const currentUsername = username;
