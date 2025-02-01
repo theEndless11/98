@@ -734,7 +734,8 @@ const updatePostViewCount = (postId) => {
   localStorage.setItem('postViews', JSON.stringify(views));
 
   // Optionally, send to the server
-  fetch(`/api/posts/${postId}/view`, {
+      const response = await fetch('/api/posts'); 
+  fetch(`/api/posts`, {
     method: 'POST',
     body: JSON.stringify({ views: views[postId] }),
     headers: {
