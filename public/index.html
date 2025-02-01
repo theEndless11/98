@@ -674,6 +674,11 @@ const loadCachedPosts = () => {
     loadMorePosts(); // If no cache, load from the server
   }
 };
+    // When posts are fetched from the server, cache them
+const savePostsToCache = (posts) => {
+  localStorage.setItem('cachedPosts', JSON.stringify(posts));
+};
+
 
 // Function to load more posts
 const loadMorePosts = () => {
@@ -688,39 +693,6 @@ const loadMorePosts = () => {
     // After the new posts are rendered, reset the loading flag
     isLoading = false;
   }, 1000); // Simulating network delay of 1 second
-};
-
-// Cache posts in localStorage for faster load
-const loadCachedPosts = () => {
-  const cachedPosts = JSON.parse(localStorage.getItem('cachedPosts'));
-  if (cachedPosts) {
-    renderPosts(cachedPosts);
-  } else {
-    loadMorePosts(); // If no cache, load from the server
-  }
-};
-
-// When posts are fetched from the server, cache them
-const savePostsToCache = (posts) => {
-  localStorage.setItem('cachedPosts', JSON.stringify(posts));
-};
-
-// Example of how you could cache posts
-loadMorePosts = async () => {
-  if (isLoading) return;
-  isLoading = true;
-
-  try {
-    const response = await fetch(`/api/posts?page=${page}`);
-    const posts = await response.json();
-    renderPosts(posts);
-    savePostsToCache(posts); // Cache the posts
-    page += 1;
-  } catch (error) {
-    console.error('Error fetching posts:', error);
-  } finally {
-    isLoading = false;
-  }
 };
 
 
