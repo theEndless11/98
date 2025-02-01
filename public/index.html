@@ -688,7 +688,14 @@ const observer = new IntersectionObserver((entries) => {
   rootMargin: '100px', // Trigger before reaching the bottom
 });
 
-observer.observe(document.querySelector('#load-more-trigger')); // Element at the bottom to trigger the load
+// Ensure the element exists before observing
+const loadMoreTrigger = document.querySelector('#load-more-trigger');
+if (loadMoreTrigger) {
+  observer.observe(loadMoreTrigger); // Element at the bottom to trigger the load
+} else {
+  console.error("Element with id 'load-more-trigger' not found.");
+}
+
 // Cache posts in localStorage for faster load
 const loadCachedPosts = () => {
   const cachedPosts = JSON.parse(localStorage.getItem('cachedPosts'));
