@@ -327,43 +327,34 @@ channel.subscribe('addComment', function (message) {
 function addPostToFeed(post, isNewPost = false) {
     const postFeed = document.getElementById('posts');
     if (!postFeed) {
-        return;
+        return;  // Exit early if the post feed doesn't exist
     }
-
-    // Ensure post data is not undefined or missing
-    if (!post || !post.message || !post.username) {
-        console.error("Invalid post data:", post);
-        return;
-    }
-
-    // Access the actual document data
-    const postData = post._doc || post;
 
     const postCard = document.createElement('div');
     postCard.className = 'post-card';
-    postCard.setAttribute('data-id', postData._id);
+    postCard.setAttribute('data-id', post._id);
 
     postCard.innerHTML = `
-        <p><strong>${postData.username}</strong>: ${postData.message}</p>
-        <p class="timestamp">${new Date(postData.timestamp).toLocaleString()}</p>
+        <p><strong>${post.username}</strong>: ${post.message}</p>
+        <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
         <div class="actions">
-            <button onclick="likePost('${postData._id}')">👍 ${postData.likes || 0}</button>
-            <button onclick="dislikePost('${postData._id}')">👎 ${postData.dislikes || 0}</button>
-            <button onclick="toggleComments('${postData._id}')">💬 Comments (${postData.comments ? postData.comments.length : 0})</button>
-            <button onclick="editPost('${postData._id}', '${postData.username}')">Edit</button>
-            <button onclick="deletePost('${postData._id}')">Delete</button>
+            <button onclick="likePost('${post._id}')">👍 ${post.likes || 0}</button>
+            <button onclick="dislikePost('${post._id}')">👎 ${post.dislikes || 0}</button>
+            <button onclick="toggleComments('${post._id}')">💬 Comments (${post.comments ? post.comments.length : 0})</button>
+            <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+            <button onclick="deletePost('${post._id}')">Delete</button>
         </div>
-        <div id="comments-${postData._id}" class="comments-section" style="display: none;">
+        <div id="comments-${post._id}" class="comments-section" style="display: none;">
             <div class="comments-list"></div>
-            <input type="text" id="commentInput-${postData._id}" placeholder="Add a comment...">
-            <button onclick="addComment('${postData._id}')">Post Comment</button>
+            <input type="text" id="commentInput-${post._id}" placeholder="Add a comment...">
+            <button onclick="addComment('${post._id}')">Post Comment</button>
         </div>
     `;
 
     // Add comments if they exist
-    if (postData.comments && postData.comments.length > 0) {
-        const commentsList = postCard.querySelector(`#comments-${postData._id} .comments-list`);
-        postData.comments.forEach(comment => {
+    if (post.comments && post.comments.length > 0) {
+        const commentsList = postCard.querySelector(`#comments-${post._id} .comments-list`);
+        post.comments.forEach(comment => {
             commentsList.innerHTML += `
                 <div class="comment">
                     <p><strong>${comment.username}</strong>: ${comment.comment}</p>
@@ -373,15 +364,12 @@ function addPostToFeed(post, isNewPost = false) {
         });
     }
 
-    // If it's a new post, prepend it; otherwise, append it
     if (isNewPost) {
-        postFeed.prepend(postCard);
+        postFeed.prepend(postCard); // Add new post at the top
     } else {
-        postFeed.appendChild(postCard);
+        postFeed.appendChild(postCard); // Append normally for other posts
     }
 }
-
-
 
 // Function to like a post
 async function likePost(postId) {
