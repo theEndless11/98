@@ -41,6 +41,11 @@ body.dark-mode {
 body.dark-mode .container {
     background: #1e1e1e; /* Dark container background */
 }
+.mode-toggle {
+    position: fixed;
+    right: 20px;
+    top: 30px;
+}
 
 /* Heading Styling */
 h1 {
