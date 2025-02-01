@@ -209,7 +209,6 @@ function toggleDarkMode() {
         localStorage.setItem('username', username);  // Save it in localStorage for "remember me"
     }
 
-  // Button event to post a new opinion
 // Global posts array to manage the feed state
 let posts = [];
 
@@ -236,6 +235,9 @@ async function fetchPosts() {
     }
 }
 
+// Initialize global posts array to store posts
+let posts = [];
+
 // Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
@@ -259,18 +261,26 @@ async function postOpinion() {
 
             if (response.ok) {
                 const newPost = await response.json();
-                addPostToFeed(newPost, true);  // Add the new post immediately to the feed
+                console.log('New Post:', newPost); // Debug log to check the post data
 
-                // Add the new post to the global posts array as well
-                posts.unshift(newPost); // This will push the new post to the top
+                if (newPost && newPost._id) {
+                    addPostToFeed(newPost, true);  // Add the new post immediately to the feed
 
-                document.getElementById('postText').value = ''; // Clear input
-                
-                // Show success notification
-                showNotification('Post submitted successfully!', false);
+                    // Add the new post to the global posts array as well
+                    posts.unshift(newPost); // This will push the new post to the top
 
-                // Publish the new post to Ably to notify all users
-                channel.publish('newOpinion', newPost);  // Real-time update
+                    document.getElementById('postText').value = ''; // Clear input
+                    
+                    // Show success notification
+                    showNotification('Post submitted successfully!', false);
+
+                    // Publish the new post to Ably to notify all users
+                    channel.publish('newOpinion', newPost);  // Real-time update
+                } else {
+                    showNotification('Error: Invalid post data received', true);
+                }
+            } else {
+                showNotification('Error: Failed to submit post', true);
             }
         } catch (error) {
             showNotification('Error submitting post: ' + error.message, true);  // Error notification
@@ -308,10 +318,13 @@ function showNotification(message, isError = false) {
 
 // Real-time updates from Ably
 channel.subscribe('newOpinion', function (message) {
-    addPostToFeed(message.data, false);  // Add new opinion in real-time
+    console.log('Real-time new post:', message.data); // Log incoming new post for debugging
+    if (message.data && message.data._id) {
+        addPostToFeed(message.data, false);  // Add new opinion in real-time
 
-    // Also, add the new post to the global posts array to maintain state
-    posts.unshift(message.data);  // Add the real-time post to the top of the feed
+        // Also, add the new post to the global posts array to maintain state
+        posts.unshift(message.data);  // Add the real-time post to the top of the feed
+    }
 });
 
 channel.subscribe('editOpinion', function (message) {
@@ -338,7 +351,14 @@ channel.subscribe('addComment', function (message) {
 function addPostToFeed(post, isNewPost = false) {
     const postFeed = document.getElementById('posts');
     if (!postFeed) {
+        console.error('Post feed not found');
         return;  // Exit early if the post feed doesn't exist
+    }
+
+    // Ensure post data is valid before adding
+    if (!post || !post._id) {
+        console.error('Invalid post data', post);
+        return;
     }
 
     const postCard = document.createElement('div');
@@ -346,7 +366,7 @@ function addPostToFeed(post, isNewPost = false) {
     postCard.setAttribute('data-id', post._id);
 
     postCard.innerHTML = `
-        <p><strong>${post.username}</strong>: ${post.message}</p>
+        <p><strong>${post.username || 'Unknown'}</strong>: ${post.message || 'No message'}</p>
         <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
         <div class="actions">
             <button onclick="likePost('${post._id}')">👍 ${post.likes || 0}</button>
@@ -381,6 +401,7 @@ function addPostToFeed(post, isNewPost = false) {
         postFeed.appendChild(postCard); // Append normally for other posts
     }
 }
+
 
 // Function to like a post
 async function likePost(postId) {
