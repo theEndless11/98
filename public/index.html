@@ -350,6 +350,18 @@ function addPostToFeed(post, isNewPost = false) {
             <button onclick="addComment('${post._id}')">Post Comment</button>
         </div>
     `;
+    // Add comments if they exist
+        if (post.comments && post.comments.length > 0) {
+            const commentsList = postCard.querySelector(`#comments-${post._id} .comments-list`);
+            post.comments.forEach(comment => {
+                commentsList.innerHTML += `
+                    <div class="comment">
+                        <p><strong>${comment.username}</strong>: ${comment.comment}</p>
+                        <p class="timestamp">${new Date(comment.timestamp).toLocaleString()}</p>
+                    </div>
+                `;
+            });
+        }
 
     if (isNewPost) {
         postFeed.prepend(postCard); // Add new post at the top
