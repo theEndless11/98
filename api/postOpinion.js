@@ -2,18 +2,43 @@ import { connectToDatabase } from '../utils/db';  // Corrected path
 import mongoose from 'mongoose';
 import { publishToAbly } from '../utils/ably';  // Corrected path
 
+// Define the schema for the post
 const postSchema = new mongoose.Schema({
     message: String,
     timestamp: Date,
     username: String,
     sessionId: String,
+    likes: { type: Number, default: 0 },
+    dislikes: { type: Number, default: 0 },
+    likedBy: [String],  // Store usernames or user IDs of users who liked the post
+    dislikedBy: [String],  // Store usernames or user IDs of users who disliked the post
+    comments: [{ username: String, comment: String, timestamp: Date }]
 });
+
 const Post = mongoose.model('Post', postSchema);
+
+let isDbConnected = false;
+
+// Check if the database connection is already established to avoid redundant connections
+const ensureDatabaseConnection = async () => {
+    if (!isDbConnected) {
+        try {
+            console.log('Connecting to database...');
+            await connectToDatabase();
+            isDbConnected = true;
+            console.log('Database connected successfully.');
+        } catch (error) {
+            console.error('Error connecting to the database:', error);
+            throw new Error('Failed to connect to database');
+        }
+    }
+};
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         const { message, username, sessionId } = req.body;
-        
+
+        // Validate input
         if (!message || message.trim() === '') {
             return res.status(400).json({ message: 'Message cannot be empty' });
         }
@@ -22,29 +47,39 @@ export default async function handler(req, res) {
         }
 
         try {
-            console.log('Connecting to database...');
-            await connectToDatabase();  // Ensure this step completes
-            console.log('Database connected successfully.');
+            // Ensure database connection
+            await ensureDatabaseConnection();
 
-            const newPost = new Post({ message, timestamp: new Date(), username, sessionId });
-            await newPost.save();
+            // Create the new post
+            const newPost = new Post({
+                message,
+                timestamp: new Date(),
+                username,
+                sessionId
+            });
 
-            console.log('New post saved:', newPost);
+            // Save the post
+            console.log('Saving new post...');
+            const savedPost = await newPost.save();
+            console.log('New post saved:', savedPost);
 
-            // Publish to Ably
+            // Publish to Ably for real-time updates
             try {
-                await publishToAbly('newOpinion', newPost);
-                console.log('Post published to Ably:', newPost);
+                console.log('Publishing post to Ably...');
+                await publishToAbly('newOpinion', savedPost);
+                console.log('Post published to Ably:', savedPost);
             } catch (error) {
                 console.error('Error publishing to Ably:', error);
             }
 
-            res.status(201).json(newPost);
+            // Respond with the saved post
+            return res.status(201).json(savedPost);
         } catch (error) {
             console.error('Error saving post:', error);
-            res.status(500).json({ message: 'Error saving post', error });
+            return res.status(500).json({ message: 'Error saving post', error });
         }
     } else {
-        res.status(405).json({ message: 'Method Not Allowed' });
+        return res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
+
