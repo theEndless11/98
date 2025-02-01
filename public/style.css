@@ -274,7 +274,7 @@ body.dark-mode footer {
 /* Floating Navigation (FAB Buttons) */
 .floating-nav {
     position: fixed;
-    bottom: 91px;
+    bottom: 89px;
     right: 20px;
     display: flex;
     flex-direction: column;
