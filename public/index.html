@@ -200,107 +200,101 @@ function toggleDarkMode() {
 
   // Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
-
 // Fetch past messages when the page loads
 window.onload = async () => {
     try {
         const posts = await fetchPosts();  // Fetch previous posts
         if (posts && posts.length > 0) {
             posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
-        } else {
-            console.log("No previous posts found.");
         }
     } catch (error) {
-        console.error("Error loading posts: ", error);
+        // Handle error silently
     }
 };
 
-    // Function to fetch posts from the backend
-    async function fetchPosts() {
-        try {
-            const response = await fetch('/api/posts');  // Ensure this path matches your backend
-            if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
-            const posts = await response.json();
-            return posts;
-        } catch (error) {
-            console.error('Error fetching posts:', error);  // Log any errors
-            return [];  // Return an empty array if there was an error
-        }
+// Function to fetch posts from the backend
+async function fetchPosts() {
+    try {
+        const response = await fetch('/api/posts');  // Ensure this path matches your backend
+        if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
+        const posts = await response.json();
+        return posts;
+    } catch (error) {
+        return [];  // Return an empty array if there was an error
     }
+}
 
-    // Button event to post a new opinion
-    document.getElementById('submitBtn').addEventListener('click', postOpinion);
+// Button event to post a new opinion
+document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
-    async function postOpinion() {
-        const postText = document.getElementById('postText').value.trim();
-        const submitBtn = document.getElementById('submitBtn');  // Reference to the button
+async function postOpinion() {
+    const postText = document.getElementById('postText').value.trim();
+    const submitBtn = document.getElementById('submitBtn');  // Reference to the button
 
-        if (postText !== '') {
-            const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
-            const postData = { message: postText, username: username, sessionId };  // Include username and session ID
-            
-            // Add the animation class to the button to show a "pop" effect
-            submitBtn.classList.add('button-clicked');
-            
-            try {
-                const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(postData),
-                });
-
-                if (response.ok) {
-                    const newPost = await response.json();
-                    addPostToFeed(newPost, true);  // Add the new post immediately to the feed
-
-                    document.getElementById('postText').value = ''; // Clear input
-                    
-                    // Show success notification
-                    showNotification('Post submitted successfully!', false);
-
-                    // Publish the new post to Ably to notify all users
-                    channel.publish('newOpinion', newPost);  // Real-time update
-                }
-            } catch (error) {
-                console.error('Error posting opinion:', error);
-                showNotification('Error submitting post: ' + error.message, true);  // Error notification
-            } finally {
-                // Remove the button animation after 0.2s to reset it
-                setTimeout(() => {
-                    submitBtn.classList.remove('button-clicked');
-                }, 200);  // Matches the CSS transition time
-            }
-        }
-    }
-
-    // Function to show notification messages (for success or error)
-    function showNotification(message, isError = false) {
-        const notificationElement = document.getElementById('notification');
-        const messageElement = document.getElementById('notificationMessage');
+    if (postText !== '') {
+        const sessionId = sessionStorage.getItem('sessionId');  // Get the session ID
+        const postData = { message: postText, username: username, sessionId };  // Include username and session ID
         
-        messageElement.textContent = message;
+        // Add the animation class to the button to show a "pop" effect
+        submitBtn.classList.add('button-clicked');
+        
+        try {
+            const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(postData),
+            });
 
-        // Set the style for error or success
-        if (isError) {
-            notificationElement.classList.add('error-notification');
-        } else {
-            notificationElement.classList.remove('error-notification');
+            if (response.ok) {
+                const newPost = await response.json();
+                addPostToFeed(newPost, true);  // Add the new post immediately to the feed
+
+                document.getElementById('postText').value = ''; // Clear input
+                
+                // Show success notification
+                showNotification('Post submitted successfully!', false);
+
+                // Publish the new post to Ably to notify all users
+                channel.publish('newOpinion', newPost);  // Real-time update
+            }
+        } catch (error) {
+            showNotification('Error submitting post: ' + error.message, true);  // Error notification
+        } finally {
+            // Remove the button animation after 0.2s to reset it
+            setTimeout(() => {
+                submitBtn.classList.remove('button-clicked');
+            }, 200);  // Matches the CSS transition time
         }
-
-        // Show the notification with animation
-        notificationElement.classList.add('show-notification');
-
-        // Hide after 3 seconds
-        setTimeout(() => {
-            notificationElement.classList.remove('show-notification');
-        }, 3000);
     }
+}
+
+// Function to show notification messages (for success or error)
+function showNotification(message, isError = false) {
+    const notificationElement = document.getElementById('notification');
+    const messageElement = document.getElementById('notificationMessage');
+    
+    messageElement.textContent = message;
+
+    // Set the style for error or success
+    if (isError) {
+        notificationElement.classList.add('error-notification');
+    } else {
+        notificationElement.classList.remove('error-notification');
+    }
+
+    // Show the notification with animation
+    notificationElement.classList.add('show-notification');
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        notificationElement.classList.remove('show-notification');
+    }, 3000);
+}
+
 // Real-time updates from Ably
 channel.subscribe('newOpinion', function (message) {
-    console.log("New post received:", message.data); // Log to check if data is correct
     addPostToFeed(message.data, false);  // Add new opinion in real-time
 });
-
 
 channel.subscribe('editOpinion', function (message) {
     updatePostInFeed(message.data);  // Handle post edit in real-time
@@ -321,11 +315,11 @@ channel.subscribe('dislikePost', function (message) {
 channel.subscribe('addComment', function (message) {
     updatePostInFeed(message.data);  // Handle new comments in real-time
 });
+
 // Function to add a post to the feed
 function addPostToFeed(post, isNewPost = false) {
     const postFeed = document.getElementById('posts');
     if (!postFeed) {
-        console.error('Post feed element not found!');
         return;
     }
 
@@ -349,28 +343,27 @@ function addPostToFeed(post, isNewPost = false) {
                 <button onclick="addComment('${post._id}')">Post Comment</button>
             </div>
     `;
-      // Add comments if they exist
-        if (post.comments && post.comments.length > 0) {
-            const commentsList = postCard.querySelector(`#comments-${post._id} .comments-list`);
-            post.comments.forEach(comment => {
-                commentsList.innerHTML += `
-                    <div class="comment">
-                        <p><strong>${comment.username}</strong>: ${comment.comment}</p>
-                        <p class="timestamp">${new Date(comment.timestamp).toLocaleString()}</p>
-                    </div>
-                `;
-            });
-        }
+    
+    // Add comments if they exist
+    if (post.comments && post.comments.length > 0) {
+        const commentsList = postCard.querySelector(`#comments-${post._id} .comments-list`);
+        post.comments.forEach(comment => {
+            commentsList.innerHTML += `
+                <div class="comment">
+                    <p><strong>${comment.username}</strong>: ${comment.comment}</p>
+                    <p class="timestamp">${new Date(comment.timestamp).toLocaleString()}</p>
+                </div>
+            `;
+        });
+    }
 
-    // If this is a new post, prepend it, else append
+    // If it's a new post, prepend it; otherwise, append it
     if (isNewPost) {
         postFeed.prepend(postCard);
     } else {
         postFeed.appendChild(postCard);
     }
 }
-
-   
 // Function to like a post
 async function likePost(postId) {
     const currentUsername = username;
@@ -394,12 +387,10 @@ async function likePost(postId) {
             throw new Error(result.message || 'Failed to like post');
         }
 
-        console.log('Post liked:', result);
         showNotification('Post liked successfully!', false);
         channel.publish('likePost', { id: postId, likes: result.likes });
         updatePostInFeed(result);  // Update the post in the feed
     } catch (error) {
-        console.error('Error liking post:', error.message);
         showNotification(error.message, true);  // Show the error message if user already liked or disliked
     }
 }
@@ -427,23 +418,21 @@ async function dislikePost(postId) {
             throw new Error(result.message || 'Failed to dislike post');
         }
 
-        console.log('Post disliked:', result);
         showNotification('Post disliked successfully!', false);
         channel.publish('dislikePost', { id: postId, dislikes: result.dislikes });
         updatePostInFeed(result);  // Update the post in the feed
     } catch (error) {
-        console.error('Error disliking post:', error.message);
         showNotification(error.message, true);  // Show the error message if user already liked or disliked
     }
 }
 
-    // Toggle comments section
-    function toggleComments(postId) {
-        const commentsSection = document.getElementById(`comments-${postId}`);
-        commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
-    }
+// Toggle comments section
+function toggleComments(postId) {
+    const commentsSection = document.getElementById(`comments-${postId}`);
+    commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+}
 
-  // Function to comment on a post
+// Function to comment on a post
 async function addComment(postId) {
     const commentInput = document.getElementById(`commentInput-${postId}`);
     const commentText = commentInput.value.trim();
@@ -469,19 +458,18 @@ async function addComment(postId) {
                 throw new Error(result.message || 'Failed to add comment');
             }
 
-            console.log('Post commented:', result);
             updatePostInFeed(result);  // Update the post in the feed
             commentInput.value = '';  // Clear input field
         } catch (error) {
-            console.error('Error adding comment:', error.message);
+            // Error handled by notification
         }
     }
 }
-    // Function to update the post in the feed
+
+// Function to update the post in the feed
 function updatePostInFeed(updatedPost) {
- const postCard = document.querySelector(`.post-card[data-id="${updatedPost._id}"]`);
+    const postCard = document.querySelector(`.post-card[data-id="${updatedPost._id}"]`);
     if (postCard) {
-        console.log("Updating post in feed:", updatedPost);
         // Update the likes, dislikes, and comments of the post
         postCard.querySelector('.actions button:nth-child(1)').textContent = `👍 ${updatedPost.likes || 0}`;
         postCard.querySelector('.actions button:nth-child(2)').textContent = `👎 ${updatedPost.dislikes || 0}`;
@@ -507,32 +495,30 @@ function updatePostInFeed(updatedPost) {
     }
 }
 
-    // Edit post functionality
-    function editPost(postId, postUsername) {
-        const currentUsername = username;
+// Edit post functionality
+function editPost(postId, postUsername) {
+    const currentUsername = username;
 
-        if (postUsername !== currentUsername) {
-            showNotification("You can only edit your own posts.", true);
-            return;
-        }
-
-        const postText = prompt('Edit your opinion:');
-        if (postText) {
-            const updatedPost = { id: postId, message: postText, timestamp: new Date(), username: currentUsername };
-            channel.publish('editOpinion', updatedPost);
-            updatePostInFeed(updatedPost);
-
-            // Show success notification
-            showNotification('Post updated successfully!', false);
-        }
+    if (postUsername !== currentUsername) {
+        showNotification("You can only edit your own posts.", true);
+        return;
     }
 
-    // Delete post functionality
+    const postText = prompt('Edit your opinion:');
+    if (postText) {
+        const updatedPost = { id: postId, message: postText, timestamp: new Date(), username: currentUsername };
+        channel.publish('editOpinion', updatedPost);
+        updatePostInFeed(updatedPost);
+
+        // Show success notification
+        showNotification('Post updated successfully!', false);
+    }
+}
+
+// Delete post functionality
 async function deletePost(postId) {
     const currentUsername = username;
     const sessionId = sessionStorage.getItem('sessionId');
-
-    console.log(`Attempting to delete post ID: ${postId} by user: ${currentUsername}, sessionId: ${sessionId}`);
 
     // Dynamically create and show the confirmation modal
     showDeleteConfirmationModal(postId);
@@ -601,47 +587,45 @@ async function confirmDelete(postId) {
             throw new Error(result.message || 'Failed to delete post');
         }
 
-        console.log('Post deleted:', result);
-
         // Show success notification
         showNotification('Post deleted successfully!', false);
 
         channel.publish('deleteOpinion', { id: postId });
         removePostFromFeed(postId);
     } catch (error) {
-        console.error('Error deleting post:', error.message);
         // Show error notification
         showNotification('Error deleting post: ' + error.message, true);
     }
 }
 
-    // Remove post from feed after deletion
-    function removePostFromFeed(postId) {
-        const postCards = document.querySelectorAll('.post-card');
-        postCards.forEach(card => {
-            const cardId = card.getAttribute('data-id');
-            if (cardId === postId) {
-                card.remove();
-            }
-        });
-    }
-
-    // Helper function to generate a unique session ID
-    function generateSessionId() {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    }
-
-    // Helper function to generate a 4-word username
-    function generateUsername() {
-        const words = ["Sun", "Moon", "Star", "Sky", "Ocean", "Forest", "Mountain", "Cloud", "River", "Desert", "Lake", "Earth"];
-        const randomWords = [];
-        for (let i = 0; i < 4; i++) {
-            const randomIndex = Math.floor(Math.random() * words.length);
-            randomWords.push(words[randomIndex]);
+// Remove post from feed after deletion
+function removePostFromFeed(postId) {
+    const postCards = document.querySelectorAll('.post-card');
+    postCards.forEach(card => {
+        const cardId = card.getAttribute('data-id');
+        if (cardId === postId) {
+            card.remove();
         }
-        return randomWords.join("");
+    });
+}
+
+// Helper function to generate a unique session ID
+function generateSessionId() {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+// Helper function to generate a 4-word username
+function generateUsername() {
+    const words = ["Sun", "Moon", "Star", "Sky", "Ocean", "Forest", "Mountain", "Cloud", "River", "Desert", "Lake", "Earth"];
+    const randomWords = [];
+    for (let i = 0; i < 4; i++) {
+        const randomIndex = Math.floor(Math.random() * words.length);
+        randomWords.push(words[randomIndex]);
     }
-    // JavaScript for Infinite Scroll
+    return randomWords.join("");
+}
+
+// JavaScript for Infinite Scroll
 
 // Flag to track if posts are being loaded
 let isLoading = false;
@@ -662,7 +646,7 @@ const loadMoreTrigger = document.querySelector('#load-more-trigger');
 if (loadMoreTrigger) {
   observer.observe(loadMoreTrigger); // Element at the bottom to trigger the load
 } else {
-  console.error("Element with id 'load-more-trigger' not found.");
+  // Handle case where the element is missing
 }
 
 // Cache posts in localStorage for faster load
@@ -674,11 +658,11 @@ const loadCachedPosts = () => {
     loadMorePosts(); // If no cache, load from the server
   }
 };
-    // When posts are fetched from the server, cache them
+
+// When posts are fetched from the server, cache them
 const savePostsToCache = (posts) => {
   localStorage.setItem('cachedPosts', JSON.stringify(posts));
 };
-
 
 // Function to load more posts
 const loadMorePosts = () => {
@@ -688,7 +672,6 @@ const loadMorePosts = () => {
     // After loading new posts, reset the flag and re-enable the observer
 
     // Simulate rendering posts
-    console.log("Loading more posts...");
 
     // After the new posts are rendered, reset the loading flag
     isLoading = false;
