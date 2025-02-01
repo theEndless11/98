@@ -295,8 +295,10 @@ window.onload = async () => {
     }
 // Real-time updates from Ably
 channel.subscribe('newOpinion', function (message) {
+    console.log("New post received:", message.data); // Log to check if data is correct
     addPostToFeed(message.data, false);  // Add new opinion in real-time
 });
+
 
 channel.subscribe('editOpinion', function (message) {
     updatePostInFeed(message.data);  // Handle post edit in real-time
@@ -320,16 +322,14 @@ channel.subscribe('addComment', function (message) {
 // Function to add a post to the feed
 function addPostToFeed(post, isNewPost = false) {
     const postFeed = document.getElementById('posts');
-    
-    // If there's no postFeed element, the function won't run
     if (!postFeed) {
         console.error('Post feed element not found!');
         return;
     }
-    
+
     const postCard = document.createElement('div');
     postCard.className = 'post-card';
-    postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+    postCard.setAttribute('data-id', post._id);
 
     postCard.innerHTML = `
         <p><strong>${post.username}</strong>: ${post.message}</p>
@@ -341,16 +341,12 @@ function addPostToFeed(post, isNewPost = false) {
             <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
             <button onclick="deletePost('${post._id}')">Delete</button>
         </div>
-        <div id="comments-${post._id}" class="comments-section" style="display: none;">
-            <div class="comments-list"></div>
-            <input type="text" id="commentInput-${post._id}" placeholder="Add a comment...">
-            <button onclick="addComment('${post._id}')">Post Comment</button>
-        </div>
+          <div id="comments-${post._id}" class="comments-section" style="display: none;">
+                <div class="comments-list"></div>
+                <input type="text" id="commentInput-${post._id}" placeholder="Add a comment...">
+                <button onclick="addComment('${post._id}')">Post Comment</button>
+            </div>
     `;
-    
-    // Add the post to the feed
-    postFeed.insertBefore(postCard, postFeed.firstChild); // Insert at the top, or use appendChild for bottom.
-
       // Add comments if they exist
         if (post.comments && post.comments.length > 0) {
             const commentsList = postCard.querySelector(`#comments-${post._id} .comments-list`);
@@ -363,14 +359,14 @@ function addPostToFeed(post, isNewPost = false) {
                 `;
             });
         }
-       
-        // Prepend new post to the feed so it appears at the top
-        if (isNewPost) {
-            postFeed.prepend(postCard);
-        } else {
-            postFeed.appendChild(postCard);  // Append normally for real-time updates
-        }
+
+    // If this is a new post, prepend it, else append
+    if (isNewPost) {
+        postFeed.prepend(postCard);
+    } else {
+        postFeed.appendChild(postCard);
     }
+}
 
    
 // Function to like a post
