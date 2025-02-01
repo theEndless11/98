@@ -477,14 +477,15 @@ async function addComment(postId) {
 }
     // Function to update the post in the feed
 function updatePostInFeed(updatedPost) {
-    // Find the post card by its ID
-    const postCard = document.querySelector(`.post-card[data-id="${updatedPost._id}"]`);
-
+ const postCard = document.querySelector(`.post-card[data-id="${updatedPost._id}"]`);
     if (postCard) {
+        console.log("Updating post in feed:", updatedPost);
         // Update the likes, dislikes, and comments of the post
         postCard.querySelector('.actions button:nth-child(1)').textContent = `👍 ${updatedPost.likes || 0}`;
         postCard.querySelector('.actions button:nth-child(2)').textContent = `👎 ${updatedPost.dislikes || 0}`;
         postCard.querySelector('.actions button:nth-child(3)').textContent = `💬 (${updatedPost.comments ? updatedPost.comments.length : 0})`;
+        }
+}
 
         // Optionally, update the comments section if needed
         const commentsList = postCard.querySelector('.comments-list');
