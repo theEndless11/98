@@ -60,17 +60,16 @@ export default async function handler(req, res) {
 
             // Save the post
             console.log('Saving new post...');
-            const savedPost = await newPost.save();
-            console.log('New post saved:', savedPost);
+           const savedPost = await newPost.save();  // Ensure the post is saved properly
+// Log the saved post to ensure it has the right structure
+console.log('New post saved:', savedPost);
 
-            // Publish to Ably for real-time updates
-            try {
-                console.log('Publishing post to Ably...');
-                await publishToAbly('newOpinion', savedPost);
-                console.log('Post published to Ably:', savedPost);
-            } catch (error) {
-                console.error('Error publishing to Ably:', error);
-            }
+// Publish to Ably
+await publishToAbly('newOpinion', savedPost);  // Send the full post to Ably
+
+// Respond with the saved post to the client
+return res.status(201).json(savedPost);
+
 
             // Respond with the saved post
             return res.status(201).json(savedPost);
