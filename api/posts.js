@@ -4,9 +4,14 @@ import { connectToDatabase } from '../utils/db'; // Your connection utility
 // Define the schema for the post
 const postSchema = new mongoose.Schema({
     message: String,
-    timestamp: { type: Date, default: Date.now },  // Default to current date/time
+    timestamp: Date,
     username: String,
     sessionId: String,
+    likes: { type: Number, default: 0 },
+    dislikes: { type: Number, default: 0 },
+    likedBy: [String],  // Store usernames or user IDs of users who liked the post
+    dislikedBy: [String],  // Store usernames or user IDs of users who disliked the post
+    comments: [{ username: String, comment: String, timestamp: Date }]
 });
 
 // Create the model for posts
