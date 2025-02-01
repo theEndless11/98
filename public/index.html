@@ -199,11 +199,13 @@ function toggleDarkMode() {
     }
 
   // Button event to post a new opinion
-document.getElementById('submitBtn').addEventListener('click', postOpinion);
-// Fetch past messages when the page loads
+// Global posts array to manage the feed state
+let posts = [];
+
+// Fetch past posts when the page loads
 window.onload = async () => {
     try {
-        const posts = await fetchPosts();  // Fetch previous posts
+        posts = await fetchPosts();  // Fetch previous posts
         if (posts && posts.length > 0) {
             posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
         }
@@ -211,7 +213,6 @@ window.onload = async () => {
         // Handle error silently
     }
 };
-
 // Function to fetch posts from the backend
 async function fetchPosts() {
     try {
@@ -248,6 +249,9 @@ async function postOpinion() {
             if (response.ok) {
                 const newPost = await response.json();
                 addPostToFeed(newPost, true);  // Add the new post immediately to the feed
+
+                // Add the new post to the global posts array as well
+                posts.unshift(newPost); // This will push the new post to the top
 
                 document.getElementById('postText').value = ''; // Clear input
                 
@@ -294,6 +298,9 @@ function showNotification(message, isError = false) {
 // Real-time updates from Ably
 channel.subscribe('newOpinion', function (message) {
     addPostToFeed(message.data, false);  // Add new opinion in real-time
+
+    // Also, add the new post to the global posts array to maintain state
+    posts.unshift(message.data);  // Add the real-time post to the top of the feed
 });
 
 channel.subscribe('editOpinion', function (message) {
