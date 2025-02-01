@@ -317,30 +317,40 @@ channel.subscribe('dislikePost', function (message) {
 channel.subscribe('addComment', function (message) {
     updatePostInFeed(message.data);  // Handle new comments in real-time
 });
-    // Function to add a post to the feed (when posts are fetched or added)
-    function addPostToFeed(post, isNewPost = false) {
-        const postFeed = document.getElementById('posts');
-        const postCard = document.createElement('div');
-        postCard.className = 'post-card';
-        postCard.setAttribute('data-id', post._id); // Store the post ID in the card
+// Function to add a post to the feed
+function addPostToFeed(post, isNewPost = false) {
+    const postFeed = document.getElementById('posts');
+    
+    // If there's no postFeed element, the function won't run
+    if (!postFeed) {
+        console.error('Post feed element not found!');
+        return;
+    }
+    
+    const postCard = document.createElement('div');
+    postCard.className = 'post-card';
+    postCard.setAttribute('data-id', post._id); // Store the post ID in the card
 
-        postCard.innerHTML = `
-            <p><strong>${post.username}</strong>: ${post.message}</p>
-            <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
-            <div class="actions">
-                <button onclick="likePost('${post._id}')">👍 ${post.likes || 0}</button>
-                <button onclick="dislikePost('${post._id}')">👎 ${post.dislikes || 0}</button>
-                <button onclick="toggleComments('${post._id}')">💬 Comments (${post.comments ? post.comments.length : 0})</button>
-                <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
-                <button onclick="deletePost('${post._id}')">Delete</button>
-            </div>
-            <div id="comments-${post._id}" class="comments-section" style="display: none;">
-                <div class="comments-list"></div>
-                <input type="text" id="commentInput-${post._id}" placeholder="Add a comment...">
-                <button onclick="addComment('${post._id}')">Post Comment</button>
-            </div>
-        `;
-
+    postCard.innerHTML = `
+        <p><strong>${post.username}</strong>: ${post.message}</p>
+        <p class="timestamp">${new Date(post.timestamp).toLocaleString()}</p>
+        <div class="actions">
+            <button onclick="likePost('${post._id}')">👍 ${post.likes || 0}</button>
+            <button onclick="dislikePost('${post._id}')">👎 ${post.dislikes || 0}</button>
+            <button onclick="toggleComments('${post._id}')">💬 Comments (${post.comments ? post.comments.length : 0})</button>
+            <button onclick="editPost('${post._id}', '${post.username}')">Edit</button>
+            <button onclick="deletePost('${post._id}')">Delete</button>
+        </div>
+        <div id="comments-${post._id}" class="comments-section" style="display: none;">
+            <div class="comments-list"></div>
+            <input type="text" id="commentInput-${post._id}" placeholder="Add a comment...">
+            <button onclick="addComment('${post._id}')">Post Comment</button>
+        </div>
+    `;
+    
+    // Add the post to the feed
+    postFeed.insertBefore(postCard, postFeed.firstChild); // Insert at the top, or use appendChild for bottom.
+}
         // Add comments if they exist
         if (post.comments && post.comments.length > 0) {
             const commentsList = postCard.querySelector(`#comments-${post._id} .comments-list`);
