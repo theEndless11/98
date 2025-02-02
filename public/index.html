@@ -184,6 +184,55 @@ function toggleDarkMode() {
             <!-- Existing posts will be loaded here -->
         </div>
         <div id="load-more-trigger"></div>
+          <div class="header">
+        <div class="header-left">
+            <div class="hamburger-menu" id="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <div class="logo" id="logo">
+                <h1>G News</h1>
+            </div>
+        </div>
+        <div class="toggle-buttons">
+            <button id="language-toggle">🌐</button>
+            <button id="dark-mode-toggle">🌙</button>
+        </div>
+    </div>
+
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu" id="dropdown-menu">
+        <ul>
+            <li><a href='hme.html'>Home</a></li>
+              <li><a href="index.html">News</a></li>
+            <li><a href="bb.html">Quiz</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="doge.html">chat</a></li>
+              <li><a href="terms and con.html">Terms & Conditions</a></li>
+        </ul>
+    </div>
+<script>
+    // Get the hamburger menu and the dropdown menu
+const hamburgerMenu = document.getElementById('hamburger-menu');
+const dropdownMenu = document.getElementById('dropdown-menu');
+
+// Add click event listener for the hamburger menu
+hamburgerMenu.addEventListener('click', function() {
+    // Toggle 'active' class on hamburger to animate the icon
+    this.classList.toggle('active');
+    
+    // Toggle the visibility of the dropdown menu
+    dropdownMenu.classList.toggle('active');
+});
+
+// Close the menu if clicked outside
+document.addEventListener('click', function(event) {
+    if (!hamburgerMenu.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.remove('active'); // Hide the menu if clicked outside
+        hamburgerMenu.classList.remove('active'); // Reset hamburger icon
+    }
+});</script>
 
         <footer>
             <p>Powered by Ably & MongoDB Atlas</p>
