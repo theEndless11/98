@@ -303,6 +303,12 @@ async function postOpinion() {
                 // Publish the new post to Ably or other real-time service
                 channel.publish('newOpinion', newPost);  // Real-time update
 
+                // Trigger page refresh after a slight delay to ensure the post is processed
+                setTimeout(() => {
+                    // Force the page to reload with no cache
+                    window.location.reload();  // Refresh the page to ensure sync with backend
+                }, 500);  // Delay to ensure the backend completes the post submission
+
             } else {
                 showNotification('Error: Failed to submit post', true);
             }
