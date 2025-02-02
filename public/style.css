@@ -32,8 +32,8 @@ body {
     display: flex;
     flex-direction: column;
     cursor: pointer;
-    gap: 5px;
-    margin-right: 80px;
+    gap: 2px;
+    margin-right: 5px;
     transition: transform 0.3s ease;
     position: relative;
     z-index: 9999; /* Ensure hamburger is on top */
