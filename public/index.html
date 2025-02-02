@@ -6,48 +6,8 @@
     <title>Anonymous Opinions</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body> <div class="header"></div>
-            <div class="hamburger-menu" id="hamburger-menu">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
+<body> 
 
-    <!-- Dropdown Menu -->
-    <div class="dropdown-menu" id="dropdown-menu">
-        <ul>
-            <li><a href='hme.html'>Home</a></li>
-              <li><a href="index.html">News</a></li>
-            <li><a href="bb.html">Quiz</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="doge.html">chat</a></li>
-              <li><a href="terms and con.html">Terms & Conditions</a></li>
-        </ul>
-    </div>
-<script>
-    // Get the hamburger menu and the dropdown menu
-const hamburgerMenu = document.getElementById('hamburger-menu');
-const dropdownMenu = document.getElementById('dropdown-menu');
-
-// Add click event listener for the hamburger menu
-hamburgerMenu.addEventListener('click', function() {
-    // Toggle 'active' class on hamburger to animate the icon
-    this.classList.toggle('active');
-    
-    // Toggle the visibility of the dropdown menu
-    dropdownMenu.classList.toggle('active');
-});
-
-// Close the menu if clicked outside
-document.addEventListener('click', function(event) {
-    if (!hamburgerMenu.contains(event.target) && !dropdownMenu.contains(event.target)) {
-        dropdownMenu.classList.remove('active'); // Hide the menu if clicked outside
-        hamburgerMenu.classList.remove('active'); // Reset hamburger icon
-    }
-});
-</script>
-  
-    
     <div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Emoji Button for Dark Mode --><style>mode toggle {  position: fixed;
     right: 20px; }</style>
     <div id="notification" class="notification">
