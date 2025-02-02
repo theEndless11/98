@@ -233,7 +233,8 @@ async function fetchPosts() {
     }
 }
 
-// Button event to post a new opiniom
+// Button event to post a new opinion
+// Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
 async function postOpinion() {
@@ -268,11 +269,8 @@ async function postOpinion() {
                     // Publish the new post to Ably to notify all users
                     channel.publish('newOpinion', newPost);  // Real-time update
 
-                    // Trigger quick page refresh with minimal delay to get the latest posts
-                    showLoadingIndicator(true);  // Optionally show a loading indicator
-                    setTimeout(() => {
-                        window.location.reload();  // Full refresh
-                    }, 500);  // Small delay for smoother transition
+                    // Add the new post to the feed dynamically
+                    addPostToFeed(newPost);
                 } else {
                     showNotification('Error: Invalid post data received', true);
                 }
@@ -291,18 +289,10 @@ async function postOpinion() {
     }
 }
 
-// Optional: Show loading indicator during page refresh
-function showLoadingIndicator(isLoading) {
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    if (isLoading) {
-        loadingIndicator.style.display = 'block';  // Show loading indicator
-    } else {
-        loadingIndicator.style.display = 'none';  // Hide loading indicator
-    }
-}
+// Function to add a new post to the feed
+function addPostToFeed(post) {
+    const postContainer = document.getElementById('postContainer');  // Assuming you have a container for posts
 
-// Function to create a post element from the new post data
-function createPostElement(post) {
     const postElement = document.createElement('div');
     postElement.classList.add('post');
     postElement.innerHTML = `
@@ -312,8 +302,33 @@ function createPostElement(post) {
         </div>
         <div class="post-message">${post.message}</div>
     `;
-    return postElement;
+    postContainer.prepend(postElement);  // Add the new post at the top of the feed
 }
+
+// Fetch past posts when the page loads
+window.onload = async () => {
+    try {
+        const posts = await fetchPosts();  // Fetch previous posts
+        if (posts && posts.length > 0) {
+            posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+        }
+    } catch (error) {
+        // Handle error silently
+    }
+};
+
+// Function to fetch posts from the backend
+async function fetchPosts() {
+    try {
+        const response = await fetch('/api/posts');  // Ensure this path matches your backend
+        if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
+        const posts = await response.json();
+        return posts;
+    } catch (error) {
+        return [];  // Return an empty array if there was an error
+    }
+}
+
 
 // Function to show notification messages (for success or error)
 function showNotification(message, isError = false) {
