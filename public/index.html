@@ -234,7 +234,6 @@ async function fetchPosts() {
 }
 
 // Button event to post a new opinion
-// Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
 async function postOpinion() {
@@ -248,7 +247,19 @@ async function postOpinion() {
         // Add the animation class to the button to show a "pop" effect
         submitBtn.classList.add('button-clicked');
         
+        // Create an optimistically rendered post object for frontend
+        const optimisticPost = {
+            _id: Date.now(),  // Use timestamp for a temporary unique ID (will be replaced by backend ID)
+            username: username,
+            message: postText,
+            createdAt: new Date().toISOString(),
+        };
+
+        // Immediately add the post to the feed on the frontend (optimistic rendering)
+        addPostToFeed(optimisticPost);
+
         try {
+            // Send the post to the backend for processing and saving to DB
             const response = await fetch('/api/postOpinion', {  // Ensure this path is correct
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -259,21 +270,26 @@ async function postOpinion() {
                 const newPost = await response.json();
                 console.log('New Post:', newPost); // Debug log to check the post data
 
-                if (newPost && newPost._id) {
-                    // Clear the input after successful post submission
-                    document.getElementById('postText').value = '';
+                // Update the optimistically rendered post with the actual backend ID and timestamp
+                optimisticPost._id = newPost._id;  // Replace temporary ID with the actual ID from the backend
+                optimisticPost.createdAt = newPost.createdAt;  // Update createdAt with the actual time from the backend
+                
+                // Find and update the optimistic post in the feed (replace the temporary post with the real post)
+                const postElements = document.querySelectorAll('.post');
+                postElements.forEach(postElement => {
+                    const postId = postElement.getAttribute('data-id');
+                    if (postId == optimisticPost._id) {
+                        postElement.querySelector('.post-date').textContent = new Date(newPost.createdAt).toLocaleString();
+                        postElement.setAttribute('data-id', newPost._id);  // Set the real ID
+                    }
+                });
 
-                    // Show success notification
-                    showNotification('Post submitted successfully!', false);
+                // Show success notification
+                showNotification('Post submitted successfully!', false);
 
-                    // Publish the new post to Ably to notify all users
-                    channel.publish('newOpinion', newPost);  // Real-time update
+                // Publish the new post to Ably or other real-time service
+                channel.publish('newOpinion', newPost);  // Real-time update
 
-                    // Add the new post to the feed dynamically
-                    addPostToFeed(newPost);
-                } else {
-                    showNotification('Error: Invalid post data received', true);
-                }
             } else {
                 showNotification('Error: Failed to submit post', true);
             }
@@ -295,6 +311,7 @@ function addPostToFeed(post) {
 
     const postElement = document.createElement('div');
     postElement.classList.add('post');
+    postElement.setAttribute('data-id', post._id);  // Store the temporary or backend ID
     postElement.innerHTML = `
         <div class="post-header">
             <strong>${post.username}</strong>
