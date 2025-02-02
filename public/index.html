@@ -290,19 +290,6 @@ async function postOpinion() {
         }
     }
 }
-    // Function to create a post element from the new post data
-function createPostElement(post) {
-    const postElement = document.createElement('div');
-    postElement.classList.add('post');
-    postElement.innerHTML = `
-        <div class="post-header">
-            <strong>${post.username}</strong>
-            <span class="post-date">${new Date(post.createdAt).toLocaleString()}</span>
-        </div>
-        <div class="post-message">${post.message}</div>
-    `;
-    return postElement;
-}
 
 // Optional: Show loading indicator during page refresh
 function showLoadingIndicator(isLoading) {
@@ -327,7 +314,6 @@ function createPostElement(post) {
     `;
     return postElement;
 }
-
 
 // Function to show notification messages (for success or error)
 function showNotification(message, isError = false) {
