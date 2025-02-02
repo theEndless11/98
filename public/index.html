@@ -234,6 +234,7 @@ async function fetchPosts() {
 }
 
 // Button event to post a new opiniom
+// Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
 async function postOpinion() {
@@ -268,11 +269,10 @@ async function postOpinion() {
                     // Publish the new post to Ably to notify all users
                     channel.publish('newOpinion', newPost);  // Real-time update
 
-                    // Trigger page refresh to load the updated posts
-                    setTimeout(() => {
-                        // Force the page to reload with no cache
-                        window.location.href = window.location.href;
-                    }, 500);  // Small delay to ensure the post is processed before refresh
+                    // Dynamically add the new post to the DOM
+                    const postContainer = document.getElementById('postContainer');  // Assuming you have a container for posts
+                    const postElement = createPostElement(newPost);  // Function to create a post element (see below)
+                    postContainer.insertBefore(postElement, postContainer.firstChild);  // Insert at the top of the post list
                 } else {
                     showNotification('Error: Invalid post data received', true);
                 }
@@ -290,6 +290,19 @@ async function postOpinion() {
     }
 }
 
+// Function to create a post element from the new post data
+function createPostElement(post) {
+    const postElement = document.createElement('div');
+    postElement.classList.add('post');
+    postElement.innerHTML = `
+        <div class="post-header">
+            <strong>${post.username}</strong>
+            <span class="post-date">${new Date(post.createdAt).toLocaleString()}</span>
+        </div>
+        <div class="post-message">${post.message}</div>
+    `;
+    return postElement;
+}
 
 // Function to show notification messages (for success or error)
 function showNotification(message, isError = false) {
