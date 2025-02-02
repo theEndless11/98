@@ -18,6 +18,132 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
     font-size: 14px; /* Smaller font size for faster rendering */
 }
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 15px;
+    color: white;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+/* Hamburger Menu Styling */
+.hamburger-menu {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+    margin-right: 20px;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 9999; /* Ensure hamburger is on top */
+}
+
+/* Gradient color for the hamburger bars */
+.hamburger-menu .bar {
+    width: 35px;
+    height: 5px;
+    background: linear-gradient(45deg, #ff6f61, #ff9f00); /* Gradient effect for bars */
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+/* Hamburger to "X" Animation */
+.hamburger-menu.active .bar:nth-child(1) {
+    transform: rotate(45deg) translateY(8px);
+    background: linear-gradient(45deg, #ff5733, #ff9f00); /* Bright color on top bar */
+}
+
+.hamburger-menu.active .bar:nth-child(2) {
+    opacity: 0; /* Hide middle bar */
+}
+
+.hamburger-menu.active .bar:nth-child(3) {
+    transform: rotate(-45deg) translateY(-8px);
+    background: linear-gradient(45deg, #ff5733, #ff9f00); /* Bright color on bottom bar */
+}
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    display: none; /* Start hidden */
+    position: absolute;
+    top: 50px;
+    left: 0;
+    background: #333; /* Dark background for the dropdown */
+    border-radius: 8px;
+    width: 220px; /* Reduced width for the dropdown */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    padding: 10px;
+    transition: transform 0.4s ease, opacity 0.3s ease;
+    opacity: 0;
+    transform: scale(0.9); /* Start slightly scaled down */
+}
+
+/* Dropdown Menu Show Animation */
+.dropdown-menu.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1); /* Smooth scale-up effect */
+}
+
+/* Styling for the list items */
+.dropdown-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-menu ul li {
+    padding: 10px 0;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.dropdown-menu ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover Effects for Links */
+.dropdown-menu ul li a:hover {
+    background-color: green; /* Bright color on hover */
+    transform: translateX(5px); /* Slight right shift for hover effect */
+}
+
+/* Submenu for Translation */
+.sub-menu {
+    display: none;
+    padding-left: 10px;
+}
+
+.dropdown-menu ul li:hover .sub-menu {
+    display: block;
+}
+
+/* Submenu Items Style */
+.sub-menu li {
+    padding: 8px 0;
+    text-align: left;
+    background-color: #ff0044;
+    border-radius: 5px;
+}
+
+/* Submenu Item Hover Effect */
+.sub-menu li a:hover {
+    background-color: #ff4f77;
+}
 
 body.dark-mode {
     background: #121212; /* Dark mode background */
