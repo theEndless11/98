@@ -6,122 +6,7 @@
     <title>Anonymous Opinions</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>       <div id="body2"> <div class="svg-frame" id="loading">
-        <!-- Loading animation SVGs -->
-        <svg style="--i:0;--j:0;">
-            <g id="out1">
-                <path d="M72 172C72 116.772 116.772 72 172 72C227.228 72 272 116.772 272 172C272 227.228 227.228 272 172 272C116.772 272 72 227.228 72 172ZM197.322 172C197.322 158.015 185.985 146.678 172 146.678C158.015 146.678 146.678 158.015 146.678 172C146.678 185.985 158.015 197.322 172 197.322C185.985 197.322 197.322 185.985 197.322 172Z" />
-                <path d="M72 172C72 116.772 116.772 72 172 72C227.228 72 272 116.772 272 172C272 227.228 227.228 272 172 272C116.772 272 72 227.228 72 172ZM197.322 172C197.322 158.015 185.985 146.678 172 146.678C158.015 146.678 146.678 158.015 146.678 172C146.678 185.985 158.015 197.322 172 197.322C185.985 197.322 197.322 185.985 197.322 172Z" stroke="#00FFFF" stroke-width="2" stroke-miterlimit="16" mask="url(#path-1-inside-1_111_3212)" />
-            </g>
-        </svg>
-
-        <svg style="--i:1;--j:1;">
-            <g id="out2">
-                <mask id="path-2-inside-2_111_3212" fill="white">
-                    <path d="M102.892 127.966C93.3733 142.905 88.9517 160.527 90.2897 178.19L94.3752 177.88C93.1041 161.1 97.3046 144.36 106.347 130.168L102.892 127.966Z" />
-                    <!-- Add other paths as needed here -->
-                </mask>
-                <path d="M102.892 127.966L105.579 123.75L101.362 121.063L98.6752 125.28L102.892 127.966ZM90.2897 178.19L85.304 178.567L85.6817 183.553L90.6674 183.175L90.2897 178.19ZM94.3752 177.88L94.7529 182.866L99.7386 182.488L99.3609 177.503L94.3752 177.88ZM106.347 130.168L110.564 132.855L113.251 128.638L109.034 125.951L106.347 130.168Z" fill="#00FFFF" mask="url(#path-2-inside-2_111_3212)" />
-            </g>
-        </svg>
-
-        <svg style="--i:0;--j:2;">
-            <g id="inner3">
-                <path d="M195.136 135.689C188.115 131.215 179.948 128.873 171.624 128.946C163.299 129.019 155.174 131.503 148.232 136.099L148.42 136.382C155.307 131.823 163.368 129.358 171.627 129.286C179.886 129.213 187.988 131.537 194.954 135.975L195.136 135.689Z" />
-                <!-- Add more paths as needed -->
-            </g>
-        </svg>
-    </div>
-
-    <script>
-        // After 2 seconds, hide the loading animation and show the main content
-        setTimeout(function() {
-            document.getElementById("loading").style.display = "none"; // Hide loading animation
-            document.getElementById("main-content").style.display = "block"; // Show main content
-        }, 2000); // 2000ms = 2 seconds
-    </script>
-     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* General Body Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #f0f4f8; /* Light mode background */
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            height: 100vh;
-            padding: 5px;
-            overflow-x: hidden; /* Prevent horizontal scroll */
-            font-size: 14px; /* Smaller font size for faster rendering */
-        }
-
-        /* Loading Screen Body (body2) */
-        #body2 {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 9999; /* Ensure it covers the screen */
-        }
-
-        /* Loading SVG Frame */
-        .svg-frame {
-            position: relative;
-            width: 200px;
-            height: 200px;
-        }
-
-        svg {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            animation: rotate 5s linear infinite;
-        }
-
-        /* Simple rotation animation */
-        @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Individual animation timings */
-        svg:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        svg:nth-child(2) {
-            animation-delay: 1s;
-        }
-
-        svg:nth-child(3) {
-            animation-delay: 2s;
-        }
-
-        /* Main Content */
-        #main-content {
-            display: none; /* Initially hide the main content */
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-        }
-
-    </style> <div id="main content">
-        <div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Emoji Button for Dark Mode --><style>mode toggle {  position: fixed;
+<body>    <div class="mode-toggle" onclick="toggleDarkMode()">🌙</div> <!-- Emoji Button for Dark Mode --><style>mode toggle {  position: fixed;
     right: 20px; }</style>
     <div id="notification" class="notification">
   <p id="notificationMessage"></p>
@@ -304,13 +189,6 @@ function toggleDarkMode() {
             <p>Powered by Ably & MongoDB Atlas</p>
         </footer>
     </div>
-    </div><style> /* Main Content */
-        #main-content {
-            display: none; /* Initially hide the main content */
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-        }</style>
     <script src="https://cdn.ably.io/lib/ably.min.js"></script>
 </body>
 <script>
