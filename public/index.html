@@ -234,6 +234,7 @@ async function fetchPosts() {
 }
 
 // Button event to post a new opinion
+// Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
 async function postOpinion() {
@@ -252,7 +253,12 @@ async function postOpinion() {
             _id: Date.now(),  // Use timestamp for a temporary unique ID (will be replaced by backend ID)
             username: username,
             message: postText,
-            createdAt: new Date().toISOString(),
+            timestamp: new Date().toISOString(),
+            likes: 0,
+            dislikes: 0,
+            likedBy: [],
+            dislikedBy: [],
+            comments: [],
         };
 
         // Immediately add the post to the feed on the frontend (optimistic rendering)
@@ -270,16 +276,23 @@ async function postOpinion() {
                 const newPost = await response.json();
                 console.log('New Post:', newPost); // Debug log to check the post data
 
-                // Update the optimistically rendered post with the actual backend ID and timestamp
+                // Update the optimistically rendered post with the actual backend data
                 optimisticPost._id = newPost._id;  // Replace temporary ID with the actual ID from the backend
-                optimisticPost.createdAt = newPost.createdAt;  // Update createdAt with the actual time from the backend
-                
-                // Find and update the optimistic post in the feed (replace the temporary post with the real post)
+                optimisticPost.timestamp = newPost.timestamp;  // Update timestamp from backend
+                optimisticPost.likes = newPost.likes;
+                optimisticPost.dislikes = newPost.dislikes;
+                optimisticPost.likedBy = newPost.likedBy;
+                optimisticPost.dislikedBy = newPost.dislikedBy;
+                optimisticPost.comments = newPost.comments;
+
+                // Find and update the optimistic post in the feed
                 const postElements = document.querySelectorAll('.post');
                 postElements.forEach(postElement => {
                     const postId = postElement.getAttribute('data-id');
                     if (postId == optimisticPost._id) {
-                        postElement.querySelector('.post-date').textContent = new Date(newPost.createdAt).toLocaleString();
+                        postElement.querySelector('.post-date').textContent = new Date(newPost.timestamp).toLocaleString();
+                        postElement.querySelector('.likes-count').textContent = newPost.likes;
+                        postElement.querySelector('.dislikes-count').textContent = newPost.dislikes;
                         postElement.setAttribute('data-id', newPost._id);  // Set the real ID
                     }
                 });
@@ -311,41 +324,20 @@ function addPostToFeed(post) {
 
     const postElement = document.createElement('div');
     postElement.classList.add('post');
-    postElement.setAttribute('data-id', post._id);  // Store the temporary or backend ID
+    postElement.setAttribute('data-id', post._id);  // Store the ID for later reference
     postElement.innerHTML = `
         <div class="post-header">
             <strong>${post.username}</strong>
-            <span class="post-date">${new Date(post.createdAt).toLocaleString()}</span>
+            <span class="post-date">${new Date(post.timestamp).toLocaleString()}</span>
         </div>
         <div class="post-message">${post.message}</div>
+        <div class="post-actions">
+            <span class="likes-count">${post.likes}</span> Likes |
+            <span class="dislikes-count">${post.dislikes}</span> Dislikes
+        </div>
     `;
     postContainer.prepend(postElement);  // Add the new post at the top of the feed
 }
-
-// Fetch past posts when the page loads
-window.onload = async () => {
-    try {
-        const posts = await fetchPosts();  // Fetch previous posts
-        if (posts && posts.length > 0) {
-            posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
-        }
-    } catch (error) {
-        // Handle error silently
-    }
-};
-
-// Function to fetch posts from the backend
-async function fetchPosts() {
-    try {
-        const response = await fetch('/api/posts');  // Ensure this path matches your backend
-        if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
-        const posts = await response.json();
-        return posts;
-    } catch (error) {
-        return [];  // Return an empty array if there was an error
-    }
-}
-
 
 // Function to show notification messages (for success or error)
 function showNotification(message, isError = false) {
