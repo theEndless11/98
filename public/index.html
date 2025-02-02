@@ -303,11 +303,8 @@ async function postOpinion() {
                 // Publish the new post to Ably or other real-time service
                 channel.publish('newOpinion', newPost);  // Real-time update
 
-                // Trigger page refresh after a slight delay to ensure the post is processed
-                setTimeout(() => {
-                    // Force the page to reload with no cache
-                    window.location.reload();  // Refresh the page to ensure sync with backend
-                }, 500);  // Delay to ensure the backend completes the post submission
+                // Trigger page refresh immediately after the post is added
+                window.location.reload();  // Force refresh to ensure data consistency
 
             } else {
                 showNotification('Error: Failed to submit post', true);
@@ -343,6 +340,30 @@ function addPostToFeed(post) {
         </div>
     `;
     postContainer.prepend(postElement);  // Add the new post at the top of the feed
+}
+
+// Fetch past posts when the page loads
+window.onload = async () => {
+    try {
+        const posts = await fetchPosts();  // Fetch previous posts
+        if (posts && posts.length > 0) {
+            posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+        }
+    } catch (error) {
+        // Handle error silently
+    }
+};
+
+// Function to fetch posts from the backend
+async function fetchPosts() {
+    try {
+        const response = await fetch('/api/posts');  // Ensure this path matches your backend
+        if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
+        const posts = await response.json();
+        return posts;
+    } catch (error) {
+        return [];  // Return an empty array if there was an error
+    }
 }
 
 // Function to show notification messages (for success or error)
