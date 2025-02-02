@@ -234,7 +234,6 @@ async function fetchPosts() {
 }
 
 // Button event to post a new opiniom
-// Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
 async function postOpinion() {
@@ -271,15 +270,19 @@ async function postOpinion() {
 
                     // Dynamically add the new post to the DOM
                     const postContainer = document.getElementById('postContainer');  // Assuming you have a container for posts
-                    const postElement = createPostElement(newPost);  // Function to create a post element (see below)
+                    const postElement = createPostElement(newPost);  // Function to create a post element
                     postContainer.insertBefore(postElement, postContainer.firstChild);  // Insert at the top of the post list
                 } else {
                     showNotification('Error: Invalid post data received', true);
                 }
             } else {
+                // Log response status if it's not ok
+                const errorDetails = await response.text(); // Read the response body
+                console.error('Error response:', errorDetails);
                 showNotification('Error: Failed to submit post', true);
             }
         } catch (error) {
+            console.error('Error submitting post:', error);  // Log full error
             showNotification('Error submitting post: ' + error.message, true);  // Error notification
         } finally {
             // Remove the button animation after 0.2s to reset it
@@ -303,6 +306,7 @@ function createPostElement(post) {
     `;
     return postElement;
 }
+
 
 // Function to show notification messages (for success or error)
 function showNotification(message, isError = false) {
