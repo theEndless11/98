@@ -261,12 +261,6 @@ async function postOpinion() {
                 console.log('New Post:', newPost); // Debug log to check the post data
 
                 if (newPost && newPost._id) {
-                    // Add the new post immediately to the feed (without page refresh)
-                    addPostToFeed(newPost, true);  // This should update the DOM directly
-
-                    // Push the new post to the global posts array
-                    posts.unshift(newPost);  // Ensure the post goes to the top of the array
-
                     // Clear the input after successful post submission
                     document.getElementById('postText').value = '';
 
@@ -275,6 +269,11 @@ async function postOpinion() {
 
                     // Publish the new post to Ably to notify all users
                     channel.publish('newOpinion', newPost);  // Real-time update
+
+                    // Trigger page refresh to load the updated posts
+                    setTimeout(() => {
+                        location.reload();  // Refresh the page after 500ms (giving time for the post to be processed)
+                    }, 500);
                 } else {
                     showNotification('Error: Invalid post data received', true);
                 }
