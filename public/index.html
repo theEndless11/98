@@ -235,7 +235,7 @@ async function fetchPosts() {
     }
 }
 
-// Button event to post a new opinion
+// Button event to post a new opiniom
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
 async function postOpinion() {
@@ -261,13 +261,15 @@ async function postOpinion() {
                 console.log('New Post:', newPost); // Debug log to check the post data
 
                 if (newPost && newPost._id) {
-                    addPostToFeed(newPost, true);  // Add the new post immediately to the feed
+                    // Add the new post immediately to the feed (without page refresh)
+                    addPostToFeed(newPost, true);  // This should update the DOM directly
 
-                    // Add the new post to the global posts array as well
-                    posts.unshift(newPost); // This will push the new post to the top
+                    // Push the new post to the global posts array
+                    posts.unshift(newPost);  // Ensure the post goes to the top of the array
 
-                    document.getElementById('postText').value = ''; // Clear input
-                    
+                    // Clear the input after successful post submission
+                    document.getElementById('postText').value = '';
+
                     // Show success notification
                     showNotification('Post submitted successfully!', false);
 
