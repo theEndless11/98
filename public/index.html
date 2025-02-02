@@ -272,7 +272,8 @@ async function postOpinion() {
 
                     // Trigger page refresh to load the updated posts
                     setTimeout(() => {
-                        location.reload();  // Refresh the page after the post submission
+                        // Force the page to reload with no cache
+                        window.location.href = window.location.href;
                     }, 500);  // Small delay to ensure the post is processed before refresh
                 } else {
                     showNotification('Error: Invalid post data received', true);
