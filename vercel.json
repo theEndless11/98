@@ -1,6 +1,0 @@
-{
-  "crons": [{
-    "path": "/api/postOpinion.js",
-    "schedule": "0 /10 * * *"
-  }]
-}
