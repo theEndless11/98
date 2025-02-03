@@ -12,8 +12,24 @@ const postSchema = new mongoose.Schema({
 // Create the model for posts
 const Post = mongoose.model('Post', postSchema);
 
+// Set CORS headers
+const setCorsHeaders = (res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins or specify your domain
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');  // Allowed methods
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');  // Allowed headers
+};
+
 // Serverless API handler for handling different request types
 export default async function handler(req, res) {
+    // Handle pre-flight OPTIONS request
+    if (req.method === 'OPTIONS') {
+        setCorsHeaders(res);
+        return res.status(200).end(); // Respond with 200 OK for OPTIONS pre-flight
+    }
+
+    // Set CORS headers for all other requests
+    setCorsHeaders(res);
+
     await connectToDatabase(); // Ensure you're connected to the database
 
     if (req.method === 'DELETE') {
@@ -47,4 +63,3 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
-
