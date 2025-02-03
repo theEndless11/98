@@ -16,11 +16,28 @@ const postSchema = new mongoose.Schema({
 });
 const Post = mongoose.model('Post', postSchema);
 
+// Set CORS headers
+const setCorsHeaders = (res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins or set a specific domain
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');  // Allowed methods
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');  // Allowed headers
+};
+
+// Serverless API handler for creating/editing posts
 export default async function handler(req, res) {
+    // Handle pre-flight OPTIONS request
+    if (req.method === 'OPTIONS') {
+        setCorsHeaders(res);
+        return res.status(200).end(); // Respond with 200 OK for OPTIONS pre-flight
+    }
+
+    // Set CORS headers before processing the request
+    setCorsHeaders(res);
+
     if (req.method === 'POST') {
         // Handle new post creation
         const { message, username, sessionId } = req.body;
-        
+
         if (!message || message.trim() === '') {
             return res.status(400).json({ message: 'Message cannot be empty' });
         }
@@ -129,3 +146,4 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
+
