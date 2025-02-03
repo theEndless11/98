@@ -17,13 +17,30 @@ const postSchema = new mongoose.Schema({
 // Create the model for posts
 const Post = mongoose.model('Post', postSchema);
 
+// Set CORS headers
+const setCorsHeaders = (res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins or specify your domain
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');  // Allowed methods
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');  // Allowed headers
+};
+
+// Serverless API handler for liking, disliking, or commenting on a post
 export default async function handler(req, res) {
+    // Handle pre-flight OPTIONS request
+    if (req.method === 'OPTIONS') {
+        setCorsHeaders(res);
+        return res.status(200).end(); // Respond with 200 OK for OPTIONS pre-flight
+    }
+
+    // Set CORS headers for all other requests
+    setCorsHeaders(res);
+
     const { postId, username, action, comment } = req.body;
 
-    await connectToDatabase(); // Ensure you're connected to the DB
+    try {
+        await connectToDatabase(); // Ensure you're connected to the DB
 
-    if (req.method === 'POST') {
-        try {
+        if (req.method === 'POST') {
             // Find the post by postId
             const post = await Post.findById(postId);
 
@@ -61,7 +78,6 @@ export default async function handler(req, res) {
                 post.dislikes += 1;
                 post.dislikedBy.push(username); // Add the user to the dislikedBy array
 
-           
             // Handle the "comment" action
             } else if (action === 'comment') {
                 if (!comment || !comment.trim()) {
@@ -76,12 +92,12 @@ export default async function handler(req, res) {
 
             // Save the updated post
             await post.save();
-            res.json(post);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Error updating post', error });
+            return res.json(post);
+        } else {
+            res.status(405).json({ message: 'Method Not Allowed' });
         }
-    } else {
-        res.status(405).json({ message: 'Method Not Allowed' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating post', error });
     }
 }
