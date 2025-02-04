@@ -276,33 +276,6 @@ function addPostToFeed(post) {
     feedContainer.appendChild(postElement);
 }
 
-// Function to start periodic fetching of posts
-function startFetchingPosts() {
-    // Every 3 seconds, fetch new posts and update UI
-    setInterval(async () => {
-        // Show the spinner when fetching posts periodically
-        document.getElementById('loadingSpinner').style.display = 'block';
-
-        const posts = await fetchPosts();
-        
-        // Hide the spinner after fetching posts
-        document.getElementById('loadingSpinner').style.display = 'none';
-
-        // Handle the fetched posts (e.g., update UI)
-        if (posts.length > 0) {
-            // Optionally clear the current feed before appending new posts
-            document.getElementById('feedContainer').innerHTML = '';
-            posts.forEach(post => addPostToFeed(post));
-        }
-    }, 3000);  // Refresh every 3 seconds
-}
-
-// Start fetching posts periodically after the initial load
-startFetchingPosts();
-
-
-
-// Button event to post a new opinion
 // Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
 
