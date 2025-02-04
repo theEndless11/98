@@ -235,28 +235,24 @@ let posts = [];
 // Fetch posts when the page loads
 window.onload = async () => {
     const spinner = document.getElementById('loadingSpinner');
-    const feedContainer = document.getElementById('feedContainer');
     
     // Show the loading spinner initially
     spinner.style.display = 'block';
-
-    try {
-        // Fetch posts from the backend on initial load
-        const posts = await fetchPosts();
-        
-        if (posts && posts.length > 0) {
-            posts.forEach(post => addPostToFeed(post)); // Add each post to the feed
+    
+    // Simulate loading by waiting for 2 seconds
+    setTimeout(async () => {
+        try {
+            const posts = await fetchPosts();  // Fetch posts from the backend
+            if (posts && posts.length > 0) {
+                posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+            }
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        } finally {
+            // Hide the loading spinner after 2 seconds (even if posts are fetched)
+            spinner.style.display = 'none';
         }
-    } catch (error) {
-        // Handle error silently
-        console.error('Error fetching posts:', error);
-    } finally {
-        // Hide the loading spinner after posts are fetched
-        spinner.style.display = 'none';
-    }
-
-    // Start fetching posts periodically after the initial load
-    startFetchingPosts();
+    }, 2000);  // Wait for 2 seconds before hiding the spinner
 };
 
 // Function to fetch posts from the backend
@@ -279,22 +275,6 @@ function addPostToFeed(post) {
     postElement.classList.add('post');
     postElement.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p>`;
     feedContainer.appendChild(postElement);
-}
-
-// Function to start periodic fetching of posts
-function startFetchingPosts() {
-    setInterval(async () => {
-        // Do not show the spinner during periodic fetching
-        const posts = await fetchPosts();
-        
-        // Optionally clear the current feed before appending new posts
-        const feedContainer = document.getElementById('feedContainer');
-        feedContainer.innerHTML = '';  // Clear the feed before appending new posts
-
-        if (posts && posts.length > 0) {
-            posts.forEach(post => addPostToFeed(post));
-        }
-    }, 3000);  // Refresh every 3 seconds
 }
 
 // Button event to post a new opinion
