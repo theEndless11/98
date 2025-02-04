@@ -234,32 +234,40 @@ let posts = [];
 // Function that runs when the page loads
 // Fetch posts when the page loads
 window.onload = async () => {
-    // Show the loading spinner initially
-    document.getElementById('loadingSpinner').style.display = 'block';
+    const spinner = document.getElementById('loadingSpinner');
+    const feedContainer = document.getElementById('feedContainer');
     
+    // Show the loading spinner initially
+    spinner.style.display = 'block';
+
     try {
-        const posts = await fetchPosts();  // Fetch posts from the backend
+        // Fetch posts from the backend on initial load
+        const posts = await fetchPosts();
+        
         if (posts && posts.length > 0) {
-            posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+            posts.forEach(post => addPostToFeed(post)); // Add each post to the feed
         }
     } catch (error) {
         // Handle error silently
         console.error('Error fetching posts:', error);
     } finally {
-        // Hide the loading spinner after posts are fetched (initial load)
-        document.getElementById('loadingSpinner').style.display = 'none';
+        // Hide the loading spinner after posts are fetched
+        spinner.style.display = 'none';
     }
+
+    // Start fetching posts periodically after the initial load
+    startFetchingPosts();
 };
 
 // Function to fetch posts from the backend
 async function fetchPosts() {
     try {
         const response = await fetch('/api/posts');  // Ensure this path matches your backend
-        if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
+        if (!response.ok) throw new Error('Failed to load posts');
         const posts = await response.json();
         return posts;
     } catch (error) {
-        console.error(error);  // Log error to console for debugging
+        console.error('Error fetching posts:', error);  // Log error to console for debugging
         return [];  // Return an empty array if there was an error
     }
 }
@@ -275,27 +283,19 @@ function addPostToFeed(post) {
 
 // Function to start periodic fetching of posts
 function startFetchingPosts() {
-    // Every 3 seconds, fetch new posts and update UI
     setInterval(async () => {
-        // Show the spinner when fetching posts periodically
-        document.getElementById('loadingSpinner').style.display = 'block';
-
+        // Do not show the spinner during periodic fetching
         const posts = await fetchPosts();
         
-        // Hide the spinner after fetching posts
-        document.getElementById('loadingSpinner').style.display = 'none';
+        // Optionally clear the current feed before appending new posts
+        const feedContainer = document.getElementById('feedContainer');
+        feedContainer.innerHTML = '';  // Clear the feed before appending new posts
 
-        // Handle the fetched posts (e.g., update UI)
-        if (posts.length > 0) {
-            // Optionally clear the current feed before appending new posts
-            document.getElementById('feedContainer').innerHTML = '';
+        if (posts && posts.length > 0) {
             posts.forEach(post => addPostToFeed(post));
         }
     }, 3000);  // Refresh every 3 seconds
 }
-
-// Start fetching posts periodically after the initial load
-startFetchingPosts();
 
 // Button event to post a new opinion
 document.getElementById('submitBtn').addEventListener('click', postOpinion);
