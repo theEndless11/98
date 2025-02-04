@@ -186,6 +186,7 @@ function toggleDarkMode() {
             <!-- Existing posts will be loaded here -->
         </div><style>
           /* Loading Spinner Styles */
+/* Loading Spinner Styles */
 .loading-spinner {
     position: absolute;
     top: 50%;
@@ -197,7 +198,7 @@ function toggleDarkMode() {
     border-top: 5px solid #3498db;  /* Blue color for the spinner */
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    display: none;  /* Hide by default */
+    display: none;  /* Initially hidden */
 }
 
 /* Spinner rotation animation */
@@ -232,10 +233,12 @@ function toggleDarkMode() {
 let posts = [];
 
 // Fetch posts when the page loads
+// Fetch posts when the page loads
 window.onload = async () => {
-    // Show the loading spinner initially
     const spinner = document.getElementById('loadingSpinner');
-    spinner.style.display = 'block';  // Show the spinner
+    
+    // Show the loading spinner
+    spinner.style.display = 'block';
     
     try {
         const posts = await fetchPosts();  // Fetch posts from the backend
