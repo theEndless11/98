@@ -186,6 +186,7 @@ function toggleDarkMode() {
             <!-- Existing posts will be loaded here -->
         </div><style>
           /* Loading Spinner Styles */
+/* Loading Spinner Styles */
 .loading-spinner {
     position: absolute;
     top: 50%;
@@ -197,9 +198,10 @@ function toggleDarkMode() {
     border-top: 5px solid #3498db;  /* Blue color for the spinner */
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    display: none;  /* Hide by default */
 }
 
-/* Animation for spinner */
+/* Spinner rotation animation */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -236,9 +238,11 @@ posts-feed {
 let posts = [];
 
 // Fetch posts when the page loads
+// Fetch posts when the page loads
 window.onload = async () => {
     // Show the loading spinner initially
-    document.getElementById('loadingSpinner').style.display = 'block';
+    const spinner = document.getElementById('loadingSpinner');
+    spinner.style.display = 'block';  // Show the spinner
     
     try {
         const posts = await fetchPosts();  // Fetch posts from the backend
@@ -250,7 +254,7 @@ window.onload = async () => {
         console.error('Error fetching posts:', error);
     } finally {
         // Hide the loading spinner after posts are fetched (initial load)
-        document.getElementById('loadingSpinner').style.display = 'none';
+        spinner.style.display = 'none';  // Hide the spinner
     }
 };
 
