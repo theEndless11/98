@@ -231,7 +231,6 @@ function toggleDarkMode() {
 // Global posts array to manage the feed state
 let posts = [];
 
-// Function that runs when the page loads
 // Fetch posts when the page loads
 window.onload = async () => {
     const spinner = document.getElementById('loadingSpinner');
@@ -239,20 +238,23 @@ window.onload = async () => {
     // Show the loading spinner initially
     spinner.style.display = 'block';
     
-    // Simulate loading by waiting for 2 seconds
+    // Wait for 2 seconds before fetching posts
     setTimeout(async () => {
         try {
-            const posts = await fetchPosts();  // Fetch posts from the backend
+            // Fetch posts from the backend
+            posts = await fetchPosts();  // Store the fetched posts in the global 'posts' array
+            
+            // If posts were fetched successfully, add them to the feed
             if (posts && posts.length > 0) {
                 posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
             }
         } catch (error) {
-            console.error('Error fetching posts:', error);
+            console.error('Error fetching posts:', error);  // Log error if fetch fails
         } finally {
-            // Hide the loading spinner after 2 seconds (even if posts are fetched)
+            // Hide the loading spinner after the delay
             spinner.style.display = 'none';
         }
-    }, 2000);  // Wait for 2 seconds before hiding the spinner
+    }, 2000);  // Wait for 2 seconds before fetching posts
 };
 
 // Function to fetch posts from the backend
@@ -260,15 +262,15 @@ async function fetchPosts() {
     try {
         const response = await fetch('/api/posts');  // Ensure this path matches your backend
         if (!response.ok) throw new Error('Failed to load posts');
-        const posts = await response.json();
-        return posts;
+        const posts = await response.json();  // Parse the response JSON
+        return posts;  // Return the fetched posts
     } catch (error) {
-        console.error('Error fetching posts:', error);  // Log error to console for debugging
+        console.error('Error fetching posts:', error);  // Log any errors
         return [];  // Return an empty array if there was an error
     }
 }
 
-// Function to add post to feed
+// Function to add a post to the feed
 function addPostToFeed(post) {
     const feedContainer = document.getElementById('feedContainer');
     const postElement = document.createElement('div');
