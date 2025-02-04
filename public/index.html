@@ -235,10 +235,9 @@ posts-feed {
 // Global posts array to manage the feed state
 let posts = [];
 
-// Fetch past posts when the page loads
 // Fetch posts when the page loads
 window.onload = async () => {
-    // Show the loading spinner
+    // Show the loading spinner initially
     document.getElementById('loadingSpinner').style.display = 'block';
     
     try {
@@ -250,10 +249,11 @@ window.onload = async () => {
         // Handle error silently
         console.error('Error fetching posts:', error);
     } finally {
-        // Hide the loading spinner after posts are fetched
+        // Hide the loading spinner after posts are fetched (initial load)
         document.getElementById('loadingSpinner').style.display = 'none';
     }
 };
+
 // Function to fetch posts from the backend
 async function fetchPosts() {
     try {
@@ -267,17 +267,39 @@ async function fetchPosts() {
     }
 }
 
+// Function to add post to feed
+function addPostToFeed(post) {
+    const feedContainer = document.getElementById('feedContainer');
+    const postElement = document.createElement('div');
+    postElement.classList.add('post');
+    postElement.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p>`;
+    feedContainer.appendChild(postElement);
+}
+
 // Function to start periodic fetching of posts
 function startFetchingPosts() {
+    // Every 3 seconds, fetch new posts and update UI
     setInterval(async () => {
+        // Show the spinner when fetching posts periodically
+        document.getElementById('loadingSpinner').style.display = 'block';
+
         const posts = await fetchPosts();
-        // Do something with the fetched posts (e.g., update UI)
-        console.log('Fetched posts:', posts);
+        
+        // Hide the spinner after fetching posts
+        document.getElementById('loadingSpinner').style.display = 'none';
+
+        // Handle the fetched posts (e.g., update UI)
+        if (posts.length > 0) {
+            // Optionally clear the current feed before appending new posts
+            document.getElementById('feedContainer').innerHTML = '';
+            posts.forEach(post => addPostToFeed(post));
+        }
     }, 3000);  // Refresh every 3 seconds
 }
 
-// Start fetching posts when the page loads
+// Start fetching posts periodically after the initial load
 startFetchingPosts();
+
 
 
 // Button event to post a new opinion
