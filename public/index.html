@@ -232,24 +232,28 @@ function toggleDarkMode() {
 // Global posts array to manage the feed state
 let posts = [];
 
-// Fetch posts when the page loads
+// Function that runs when the page loads
 window.onload = async () => {
+    // Get the spinner element
     const spinner = document.getElementById('loadingSpinner');
     
     // Show the loading spinner initially
     spinner.style.display = 'block';
     
     try {
-        const posts = await fetchPosts();  // Fetch posts from the backend
+        // Fetch posts from the backend
+        const posts = await fetchPosts();
+        
         if (posts && posts.length > 0) {
-            posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
+            posts.forEach(post => addPostToFeed(post)); // Add each post to the feed
+        } else {
+            console.log('No posts found');
         }
     } catch (error) {
-        // Handle error silently
         console.error('Error fetching posts:', error);
     } finally {
-        // Hide the loading spinner after posts are fetched (initial load)
-        spinner.style.display = 'none';  // Hide the spinner
+        // Hide the loading spinner after posts are fetched (or error occurs)
+        spinner.style.display = 'none';
     }
 };
 
@@ -257,16 +261,16 @@ window.onload = async () => {
 async function fetchPosts() {
     try {
         const response = await fetch('/api/posts');  // Ensure this path matches your backend
-        if (!response.ok) throw new Error('Failed to load posts');  // Handle failed responses
+        if (!response.ok) throw new Error('Failed to load posts');
         const posts = await response.json();
         return posts;
     } catch (error) {
-        console.error(error);  // Log error to console for debugging
+        console.error('Error fetching posts:', error);  // Log error to console for debugging
         return [];  // Return an empty array if there was an error
     }
 }
 
-// Function to add post to feed
+// Function to add posts to the feed
 function addPostToFeed(post) {
     const feedContainer = document.getElementById('feedContainer');
     const postElement = document.createElement('div');
