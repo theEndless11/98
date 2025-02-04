@@ -181,11 +181,35 @@ function toggleDarkMode() {
             <textarea id="postText" placeholder="What’s on your mind?" rows="4"></textarea>
             <button id="submitBtn">Post Opinion</button>
         </div>
-
+<div id="loadingSpinner" class="loading-spinner"></div>
         <div id="posts" class="posts-feed">
             <!-- Existing posts will be loaded here -->
-        </div>
-          
+        </div><style>
+          /* Loading Spinner Styles */
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;  /* Light grey background */
+    border-top: 5px solid #3498db;  /* Blue color for the spinner */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Animation for spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Feed Container */
+posts-feed {
+    margin-top: 60px; /* Adjust if necessary */
+}
+    </style>
         <footer>
             <p>Powered by Ably & MongoDB Atlas</p>
         </footer>
@@ -212,14 +236,22 @@ function toggleDarkMode() {
 let posts = [];
 
 // Fetch past posts when the page loads
+// Fetch posts when the page loads
 window.onload = async () => {
+    // Show the loading spinner
+    document.getElementById('loadingSpinner').style.display = 'block';
+    
     try {
-        posts = await fetchPosts();  // Fetch previous posts
+        const posts = await fetchPosts();  // Fetch posts from the backend
         if (posts && posts.length > 0) {
             posts.forEach(post => addPostToFeed(post));  // Add each post to the feed
         }
     } catch (error) {
         // Handle error silently
+        console.error('Error fetching posts:', error);
+    } finally {
+        // Hide the loading spinner after posts are fetched
+        document.getElementById('loadingSpinner').style.display = 'none';
     }
 };
 // Function to fetch posts from the backend
@@ -230,9 +262,23 @@ async function fetchPosts() {
         const posts = await response.json();
         return posts;
     } catch (error) {
+        console.error(error);  // Log error to console for debugging
         return [];  // Return an empty array if there was an error
     }
 }
+
+// Function to start periodic fetching of posts
+function startFetchingPosts() {
+    setInterval(async () => {
+        const posts = await fetchPosts();
+        // Do something with the fetched posts (e.g., update UI)
+        console.log('Fetched posts:', posts);
+    }, 3000);  // Refresh every 3 seconds
+}
+
+// Start fetching posts when the page loads
+startFetchingPosts();
+
 
 // Button event to post a new opinion
 // Button event to post a new opinion
