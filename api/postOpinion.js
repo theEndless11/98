@@ -8,6 +8,7 @@ const postSchema = new mongoose.Schema({
     timestamp: Date,
     username: String,
     sessionId: String,
+    profilePic: { type: String, default: 'default-profile-pic.png' }, // Store profile pic URL or base64
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     likedBy: [String],  // Store usernames or user IDs of users who liked the post
@@ -36,7 +37,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         // Handle new post creation
-        const { message, username, sessionId } = req.body;
+        const { message, username, sessionId, profilePic } = req.body; // Include profilePic in the body
 
         if (!message || message.trim() === '') {
             return res.status(400).json({ message: 'Message cannot be empty' });
@@ -50,7 +51,14 @@ export default async function handler(req, res) {
             await connectToDatabase();  // Ensure this step completes
             console.log('Database connected successfully.');
 
-            const newPost = new Post({ message, timestamp: new Date(), username, sessionId });
+            // Create a new post including the profilePic
+            const newPost = new Post({
+                message,
+                timestamp: new Date(),
+                username,
+                sessionId,
+                profilePic: profilePic || 'default-profile-pic.png'  // Default to placeholder if no profile pic
+            });
             await newPost.save();
 
             console.log('New post saved:', newPost);
@@ -69,6 +77,7 @@ export default async function handler(req, res) {
                 message: newPost.message,
                 timestamp: newPost.timestamp,
                 username: newPost.username,
+                profilePic: newPost.profilePic,  // Include profilePic in response
                 likes: newPost.likes,
                 dislikes: newPost.dislikes,
                 comments: newPost.comments,
@@ -81,7 +90,7 @@ export default async function handler(req, res) {
         }
     } else if (req.method === 'PUT' || req.method === 'PATCH') {
         // Handle post edit
-        const { postId, message, likes, dislikes, comments } = req.body;
+        const { postId, message, likes, dislikes, comments, profilePic } = req.body;
 
         if (!postId) {
             return res.status(400).json({ message: 'Post ID is required' });
@@ -98,7 +107,7 @@ export default async function handler(req, res) {
                 return res.status(404).json({ message: 'Post not found' });
             }
 
-            // Update the fields (message, likes, dislikes, comments)
+            // Update the fields (message, likes, dislikes, comments, profilePic)
             if (message && message.trim() !== '') {
                 post.message = message;
             }
@@ -110,6 +119,9 @@ export default async function handler(req, res) {
             }
             if (comments !== undefined) {
                 post.comments = comments;
+            }
+            if (profilePic) {
+                post.profilePic = profilePic;  // Update profile pic if provided
             }
 
             // Save the updated post
@@ -131,6 +143,7 @@ export default async function handler(req, res) {
                 message: post.message,
                 timestamp: post.timestamp,
                 username: post.username,
+                profilePic: post.profilePic,  // Include updated profilePic
                 likes: post.likes,
                 dislikes: post.dislikes,
                 comments: post.comments,
