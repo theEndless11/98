@@ -1,6 +1,8 @@
 import { connectToDatabase } from '../utils/db';  // Corrected path
 import mongoose from 'mongoose';
 import { publishToAbly } from '../utils/ably';  // Corrected path
+import fs from 'fs';
+import path from 'path';
 
 // Define the schema for the post
 const postSchema = new mongoose.Schema({
@@ -22,6 +24,22 @@ const setCorsHeaders = (res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins or set a specific domain
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');  // Allowed methods
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');  // Allowed headers
+};
+
+// Function to save profile picture (Handle upload or base64 saving)
+const saveProfilePic = async (profilePic) => {
+    if (profilePic && profilePic.startsWith('data:image/')) {
+        // If the profile picture is a base64 string, save it as a file
+        const base64Data = profilePic.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
+        const filename = `profile-${Date.now()}.png`;  // Unique filename based on timestamp
+        const filePath = path.join(__dirname, '../uploads', filename);
+
+        // Save file
+        fs.writeFileSync(filePath, base64Data, 'base64');
+        return `/uploads/${filename}`; // Return the file path relative to public directory
+    }
+
+    return profilePic; // If not base64, just return the URL or file path
 };
 
 // Serverless API handler for creating/editing posts
@@ -51,13 +69,16 @@ export default async function handler(req, res) {
             await connectToDatabase();  // Ensure this step completes
             console.log('Database connected successfully.');
 
+            // Save the profile picture
+            const savedProfilePic = await saveProfilePic(profilePic);
+
             // Create a new post including the profilePic
             const newPost = new Post({
                 message,
                 timestamp: new Date(),
                 username,
                 sessionId,
-                profilePic: profilePic || 'default-profile-pic.png'  // Default to placeholder if no profile pic
+                profilePic: savedProfilePic || 'default-profile-pic.png'  // Default to placeholder if no profile pic
             });
             await newPost.save();
 
@@ -121,7 +142,7 @@ export default async function handler(req, res) {
                 post.comments = comments;
             }
             if (profilePic) {
-                post.profilePic = profilePic;  // Update profile pic if provided
+                post.profilePic = await saveProfilePic(profilePic);  // Update profile pic if provided
             }
 
             // Save the updated post
