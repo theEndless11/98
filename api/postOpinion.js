@@ -16,32 +16,41 @@ const postSchema = new mongoose.Schema({
 });
 const Post = mongoose.model('Post', postSchema);
 
-// Set CORS headers
-const setCorsHeaders = (res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins or set a specific domain
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');  // Allowed methods
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');  // Allowed headers
+// Set CORS headers with dynamic domain handling (Allow all origins for testing)
+const setCorsHeaders = (req, res) => {
+    // Allow all origins for testing, or specify a dynamic list of allowed origins
+    res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all domains (use with caution in production)
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');  // Allowing additional headers
+    res.setHeader('Access-Control-Allow-Credentials', 'true');  // Allow credentials (cookies or authentication)
+    res.setHeader('Cache-Control', 'no-cache');  // Prevent caching of OPTIONS requests
+
+    console.log('CORS headers set:', req.headers.origin);  // Log the origin of the request
 };
 
 // Serverless API handler for creating/editing posts
 export default async function handler(req, res) {
     // Handle pre-flight OPTIONS request
     if (req.method === 'OPTIONS') {
-        setCorsHeaders(res);
+        console.log('Handling OPTIONS request');
+        setCorsHeaders(req, res);  // Include CORS headers for OPTIONS requests
         return res.status(200).end(); // Respond with 200 OK for OPTIONS pre-flight
     }
 
-    // Set CORS headers before processing the request
-    setCorsHeaders(res);
+    // Set CORS headers for all other requests
+    console.log('Handling method:', req.method);
+    setCorsHeaders(req, res);
 
     if (req.method === 'POST') {
-        // Handle new post creation
         const { message, username, sessionId } = req.body;
 
+        // Validate input
         if (!message || message.trim() === '') {
+            console.log('Validation error: Message cannot be empty');
             return res.status(400).json({ message: 'Message cannot be empty' });
         }
         if (!username || !sessionId) {
+            console.log('Validation error: Username and sessionId are required');
             return res.status(400).json({ message: 'Username and sessionId are required' });
         }
 
@@ -63,7 +72,7 @@ export default async function handler(req, res) {
                 console.error('Error publishing to Ably:', error);
             }
 
-            // Send only the necessary data (not the full Mongoose document)
+            // Send only necessary data, not the full Mongoose document
             const cleanPost = {
                 _id: newPost._id,
                 message: newPost.message,
@@ -74,7 +83,8 @@ export default async function handler(req, res) {
                 comments: newPost.comments,
             };
 
-            res.status(201).json(cleanPost);  // Send clean post data without Mongoose metadata
+            console.log('Sending response with new post:', cleanPost);
+            res.status(201).json(cleanPost);  // Send clean post data
         } catch (error) {
             console.error('Error saving post:', error);
             res.status(500).json({ message: 'Error saving post', error });
@@ -84,10 +94,10 @@ export default async function handler(req, res) {
         const { postId, message, likes, dislikes, comments } = req.body;
 
         if (!postId) {
+            console.log('Validation error: Post ID is required');
             return res.status(400).json({ message: 'Post ID is required' });
         }
 
-        // Fetch the post by its ID
         try {
             console.log('Connecting to database...');
             await connectToDatabase();
@@ -95,6 +105,7 @@ export default async function handler(req, res) {
 
             const post = await Post.findById(postId);
             if (!post) {
+                console.log('Post not found with ID:', postId);
                 return res.status(404).json({ message: 'Post not found' });
             }
 
@@ -112,7 +123,6 @@ export default async function handler(req, res) {
                 post.comments = comments;
             }
 
-            // Save the updated post
             await post.save();
 
             console.log('Post updated:', post);
@@ -125,7 +135,6 @@ export default async function handler(req, res) {
                 console.error('Error publishing to Ably:', error);
             }
 
-            // Send only the necessary data (not the full Mongoose document)
             const updatedPost = {
                 _id: post._id,
                 message: post.message,
@@ -136,6 +145,7 @@ export default async function handler(req, res) {
                 comments: post.comments,
             };
 
+            console.log('Sending response with updated post:', updatedPost);
             res.status(200).json(updatedPost);  // Send updated post data
 
         } catch (error) {
@@ -143,6 +153,7 @@ export default async function handler(req, res) {
             res.status(500).json({ message: 'Error editing post', error });
         }
     } else {
+        console.log('Method not allowed:', req.method);
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
