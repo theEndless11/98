@@ -18,14 +18,20 @@ const Post = mongoose.model('Post', postSchema);
 
 // Set CORS headers with dynamic domain handling (Allow all origins for testing)
 const setCorsHeaders = (req, res) => {
-    // Allow all origins for testing, or specify a dynamic list of allowed origins
-    res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all domains (use with caution in production)
+    const allowedOrigins = ['https://latestnewsandaffairs.site'];  // Replace with your frontend URL
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);  // Allow only the specified origin
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', 'https://latestnewsandaffairs.site');  // Default to frontend URL
+    }
+    
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');  // Allowing additional headers
-    res.setHeader('Access-Control-Allow-Credentials', 'true');  // Allow credentials (cookies or authentication)
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');  // Only if you were using cookies (which you're not)
     res.setHeader('Cache-Control', 'no-cache');  // Prevent caching of OPTIONS requests
 
-    console.log('CORS headers set:', req.headers.origin);  // Log the origin of the request
+    console.log('CORS headers set:', req.headers.origin);  // Log the origin for debugging
 };
 
 // Serverless API handler for creating/editing posts
@@ -157,3 +163,4 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
     }
 }
+
