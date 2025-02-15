@@ -18,8 +18,10 @@ const Post = mongoose.model('Post', postSchema);
 
 // Set CORS headers with dynamic domain handling (Allow all origins for testing)
 const setCorsHeaders = (req, res) => {
-    const allowedOrigins = ['https://latestnewsandaffairs.site'];  // Replace with your frontend URL
+    const allowedOrigins = ['https://latestnewsandaffairs.site'];  // Add more origins if needed
     const origin = req.headers.origin;
+    
+    // Check if the origin is in the allowed origins
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);  // Allow only the specified origin
     } else {
@@ -28,7 +30,7 @@ const setCorsHeaders = (req, res) => {
     
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');  // Only if you were using cookies (which you're not)
+    res.setHeader('Access-Control-Allow-Credentials', 'true');  // Only if you are using credentials (cookies, etc.)
     res.setHeader('Cache-Control', 'no-cache');  // Prevent caching of OPTIONS requests
 
     console.log('CORS headers set:', req.headers.origin);  // Log the origin for debugging
