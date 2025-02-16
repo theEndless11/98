@@ -16,71 +16,54 @@ const postSchema = new mongoose.Schema({
 });
 const Post = mongoose.model('Post', postSchema);
 
-// Set CORS headers with dynamic domain handling (Allow all origins for testing)
+// Set CORS headers
 const setCorsHeaders = (req, res) => {
     const allowedOrigins = ['https://latestnewsandaffairs.site'];  // Add more origins if needed
     const origin = req.headers.origin;
 
-    // Check if the origin is in the allowed origins
     if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);  // Allow only the specified origin
+        res.setHeader('Access-Control-Allow-Origin', origin);
     } else {
-        res.setHeader('Access-Control-Allow-Origin', 'https://latestnewsandaffairs.site');  // Default to frontend URL
+        res.setHeader('Access-Control-Allow-Origin', 'https://latestnewsandaffairs.site');
     }
 
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');  // Allow credentials if needed (cookies, etc.)
-    res.setHeader('Cache-Control', 'no-cache');  // Prevent caching of OPTIONS requests
-
-    console.log('CORS headers set:', req.headers.origin);  // Log the origin for debugging
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Cache-Control', 'no-cache');
 };
 
-// Serverless API handler for creating/editing posts
+// Handle post actions (creating, liking, disliking)
 export default async function handler(req, res) {
-    // Handle pre-flight OPTIONS request
     if (req.method === 'OPTIONS') {
-        console.log('Handling OPTIONS request');
-        setCorsHeaders(req, res);  // Include CORS headers for OPTIONS requests
-        return res.status(200).end(); // Respond with 200 OK for OPTIONS pre-flight
+        setCorsHeaders(req, res);
+        return res.status(200).end();
     }
 
-    // Set CORS headers for all other requests
-    console.log('Handling method:', req.method);
     setCorsHeaders(req, res);
 
+    // POST: Create new post
     if (req.method === 'POST') {
         const { message, username, sessionId } = req.body;
 
-        // Validate input
         if (!message || message.trim() === '') {
-            console.log('Validation error: Message cannot be empty');
             return res.status(400).json({ message: 'Message cannot be empty' });
         }
         if (!username || !sessionId) {
-            console.log('Validation error: Username and sessionId are required');
             return res.status(400).json({ message: 'Username and sessionId are required' });
         }
 
         try {
-            console.log('Connecting to database...');
-            await connectToDatabase();  // Ensure this step completes
-            console.log('Database connected successfully.');
-
+            await connectToDatabase();
             const newPost = new Post({ message, timestamp: new Date(), username, sessionId });
             await newPost.save();
 
-            console.log('New post saved:', newPost);
-
-            // Publish to Ably
             try {
                 await publishToAbly('newOpinion', newPost);
-                console.log('Post published to Ably:', newPost);
             } catch (error) {
                 console.error('Error publishing to Ably:', error);
             }
 
-            // Send only necessary data, not the full Mongoose document
             const cleanPost = {
                 _id: newPost._id,
                 message: newPost.message,
@@ -91,54 +74,60 @@ export default async function handler(req, res) {
                 comments: newPost.comments,
             };
 
-            console.log('Sending response with new post:', cleanPost);
-            res.status(201).json(cleanPost);  // Send clean post data
+            return res.status(201).json(cleanPost);
         } catch (error) {
             console.error('Error saving post:', error);
-            res.status(500).json({ message: 'Error saving post', error });
+            return res.status(500).json({ message: 'Error saving post', error });
         }
-    } else if (req.method === 'PUT' || req.method === 'PATCH') {
-        // Handle post edit
-        const { postId, message, likes, dislikes, comments } = req.body;
+    }
 
-        if (!postId) {
-            console.log('Validation error: Post ID is required');
-            return res.status(400).json({ message: 'Post ID is required' });
+    // PUT/PATCH: Handle likes/dislikes
+    if (req.method === 'PUT' || req.method === 'PATCH') {
+        const { postId, action, username } = req.body;  // action can be 'like' or 'dislike'
+
+        if (!postId || !action || !username) {
+            return res.status(400).json({ message: 'Post ID, action, and username are required' });
         }
 
         try {
-            console.log('Connecting to database...');
             await connectToDatabase();
-            console.log('Database connected successfully.');
-
             const post = await Post.findById(postId);
             if (!post) {
-                console.log('Post not found with ID:', postId);
                 return res.status(404).json({ message: 'Post not found' });
             }
 
-            // Update the fields (message, likes, dislikes, comments)
-            if (message && message.trim() !== '') {
-                post.message = message;
+            // Handle the 'like' action
+            if (action === 'like') {
+                if (post.likedBy.includes(username)) {
+                    return res.status(400).json({ message: 'You have already liked this post' });
+                }
+                if (post.dislikedBy.includes(username)) {
+                    // Remove dislike and update dislike count
+                    post.dislikes -= 1;
+                    post.dislikedBy = post.dislikedBy.filter(user => user !== username);
+                }
+                post.likes += 1;
+                post.likedBy.push(username);
             }
-            if (likes !== undefined) {
-                post.likes = likes;
-            }
-            if (dislikes !== undefined) {
-                post.dislikes = dislikes;
-            }
-            if (comments !== undefined) {
-                post.comments = comments;
+
+            // Handle the 'dislike' action
+            if (action === 'dislike') {
+                if (post.dislikedBy.includes(username)) {
+                    return res.status(400).json({ message: 'You have already disliked this post' });
+                }
+                if (post.likedBy.includes(username)) {
+                    // Remove like and update like count
+                    post.likes -= 1;
+                    post.likedBy = post.likedBy.filter(user => user !== username);
+                }
+                post.dislikes += 1;
+                post.dislikedBy.push(username);
             }
 
             await post.save();
 
-            console.log('Post updated:', post);
-
-            // Publish to Ably
             try {
-                await publishToAbly('editOpinion', post);
-                console.log('Post updated in Ably:', post);
+                await publishToAbly('updateOpinion', post);
             } catch (error) {
                 console.error('Error publishing to Ably:', error);
             }
@@ -153,16 +142,14 @@ export default async function handler(req, res) {
                 comments: post.comments,
             };
 
-            console.log('Sending response with updated post:', updatedPost);
-            res.status(200).json(updatedPost);  // Send updated post data
-
+            return res.status(200).json(updatedPost);
         } catch (error) {
-            console.error('Error editing post:', error);
-            res.status(500).json({ message: 'Error editing post', error });
+            console.error('Error updating post:', error);
+            return res.status(500).json({ message: 'Error updating post', error });
         }
-    } else {
-        console.log('Method not allowed:', req.method);
-        res.status(405).json({ message: 'Method Not Allowed' });
     }
+
+    // Handle other methods
+    return res.status(405).json({ message: 'Method Not Allowed' });
 }
 
